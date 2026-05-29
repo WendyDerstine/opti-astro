@@ -6,50 +6,38 @@ import Layout from '../../layouts/Layout.astro';
 import Section from '../compositions/Section/Section.astro';
 const previewPayload = Astro.props.data as ContentPayload;
 
-// Resolve site settings and styles for this page.
-// 1. Start with the hostname-based defaults (same lookup Layout.astro does for other page types).
-// 2. Then check every URL segment as a potential "<segment>.override" key in parallel.
-// 3. If any segment matches a CMS item, its settings/styles win over the hostname defaults.
-// The final resolved values are passed to Layout, which skips its own hostname lookup.
-const { host } = Astro.url;
+// URL-based site settings/styles overrides.
+// Every segment in the URL path is tried as a lookup key (<segment>.override) in parallel.
+// The first segment that matches a CMS item wins.
+// Layout.astro handles the hostname-based defaults via its own lookup — we only pass
+// override items here when a segment match is found.
 const currentPath = Astro.url.pathname;
 const segments = currentPath.split('/').filter(Boolean);
 
-const [hostSettingsResult, hostStylesResult, ...segmentResults] = await Promise.all([
-    getOptimizelySdk(previewPayload).siteSettingsByHostname({
-        domain: host,
-        locale: [previewPayload.loc as Locales],
-    }),
-    getOptimizelySdk(previewPayload).siteStylesByHostname({
-        domain: host,
-        locale: [previewPayload.loc as Locales],
-    }),
-    ...segments.map(seg => Promise.all([
-        getOptimizelySdk(previewPayload).siteSettingsByHostname({
-            domain: `${seg}.override`,
-            locale: [previewPayload.loc as Locales],
-        }),
-        getOptimizelySdk(previewPayload).siteStylesByHostname({
-            domain: `${seg}.override`,
-            locale: [previewPayload.loc as Locales],
-        }),
-    ])),
-]);
+let overrideSiteSettings = null;
+let overrideSiteStyles = null;
 
-// Start from hostname defaults, then overlay with the first matching segment override
-let resolvedSiteSettings = hostSettingsResult;
-let resolvedSiteStyles = hostStylesResult;
-
-for (const segResult of segmentResults as [any, any][]) {
-    const [segSettings, segStyles] = segResult;
-    if (segSettings?.SiteSettings?.item || segStyles?.SiteStyles?.item) {
-        resolvedSiteSettings = {
-            SiteSettings: { item: { ...hostSettingsResult?.SiteSettings?.item, ...segSettings?.SiteSettings?.item } }
-        };
-        resolvedSiteStyles = {
-            SiteStyles: { item: { ...hostStylesResult?.SiteStyles?.item, ...segStyles?.SiteStyles?.item } }
-        };
-        break;
+if (segments.length > 0) {
+    const overrideResults = await Promise.all(
+        segments.map(seg => Promise.all([
+            getOptimizelySdk(previewPayload).siteSettingsByHostname({
+                domain: `${seg}.override`,
+                locale: [previewPayload.loc as Locales],
+            }),
+            getOptimizelySdk(previewPayload).siteStylesByHostname({
+                domain: `${seg}.override`,
+                locale: [previewPayload.loc as Locales],
+            }),
+        ]))
+    );
+    for (const [settingsResult, stylesResult] of overrideResults) {
+        const foundSettings = settingsResult?.SiteSettings?.item ?? null;
+        const foundStyles = stylesResult?.SiteStyles?.item ?? null;
+        if (foundSettings || foundStyles) {
+            overrideSiteSettings = foundSettings;
+            overrideSiteStyles = foundStyles;
+            break;
+        }
     }
 }
 
@@ -91,20 +79,8 @@ const hierarchicalUrl =
         : '';
         
 const pageClass = 'page-experience';
-
-// TEMP DEBUG — remove after diagnosis
-const _debugSettingsDomain = resolvedSiteSettings?.SiteSettings?.item?.SiteDomain ?? 'NULL';
-const _debugStylesDomain = resolvedSiteStyles?.SiteStyles?.item?.SiteStylesDomain ?? 'NULL';
-const _debugHost = host;
-const _debugLoc = previewPayload.loc ?? 'NULL';
-const _debugCtx = previewPayload.ctx ?? 'NULL';
 ---
 
-<meta name="x-cms-debug-settings" content={_debugSettingsDomain} />
-<meta name="x-cms-debug-styles" content={_debugStylesDomain} />
-<meta name="x-cms-debug-host" content={_debugHost} />
-<meta name="x-cms-debug-loc" content={_debugLoc} />
-<meta name="x-cms-debug-ctx" content={_debugCtx} />
 <Layout
     title={metaTitle}
     description={metaDescription}
@@ -114,8 +90,8 @@ const _debugCtx = previewPayload.ctx ?? 'NULL';
     defaultUrl={defaultUrl}
     hierarchicalUrl={hierarchicalUrl ?? ''}
     extPreviewEnabled={extPreviewEnabled}
-    resolvedSiteSettings={resolvedSiteSettings}
-    resolvedSiteStyles={resolvedSiteStyles}
+    overrideSiteSettings={overrideSiteSettings}
+    overrideSiteStyles={overrideSiteStyles}
 >
     <div class={`vb:outline relative w-full flex-1 ${pageClass}`}>
         {
