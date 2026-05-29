@@ -52,14 +52,20 @@ const isDraft = EXTERNAL_PREVIEW_ENABLED && extPreviewEnabled && await isDraftCo
 
 const { host } = Astro.url;
 
-// Use pre-resolved settings/styles if provided (e.g. from _Experiences.astro which
-// handles its own hostname + override resolution). Otherwise do the hostname lookup here.
-const siteSettings = resolvedSiteSettings ?? await getOptimizelySdk(
-    contentPayload
-).siteSettingsByHostname({
+// TEMP DEBUG: always run Layout's own query to compare with _Experiences.astro result
+const _layoutSettingsQuery = await getOptimizelySdk(contentPayload).siteSettingsByHostname({
     domain: host,
     locale: [contentPayload.loc as Locales],
 });
+const _layoutStylesQuery = await getOptimizelySdk(contentPayload).siteStylesByHostname({
+    domain: host,
+    locale: [contentPayload.loc as Locales],
+});
+
+// Use pre-resolved settings/styles if provided (e.g. from _Experiences.astro which
+// handles its own hostname + override resolution). Otherwise do the hostname lookup here.
+const siteSettings = resolvedSiteSettings ?? _layoutSettingsQuery;
+const siteStyles = resolvedSiteStyles ?? _layoutStylesQuery;
 
 const optiWebProjectId = siteSettings?.SiteSettings?.item?.OptiWebProjectId || null;
 const pageVariationWeb = Astro.url.searchParams.get('var') || null;
@@ -67,11 +73,6 @@ const pageVariationWeb = Astro.url.searchParams.get('var') || null;
 const odpEnabled = !!OPTIMIZELY_DATA_PLATFORM_PRIVATE_KEY;
 const odpPublicKey = odpEnabled && OPTIMIZELY_DATA_PLATFORM_PRIVATE_KEY?.split('.')[0];
 // const odpScript = odpPublicKey && getOdpScript(odpPublicKey);
-
-const siteStyles = resolvedSiteStyles ?? await getOptimizelySdk(contentPayload).siteStylesByHostname({
-    domain: host,
-    locale: [contentPayload.loc as Locales],
-});
 
 const siteFont = getSiteFont(siteStyles?.SiteStyles?.item);
 
@@ -94,6 +95,10 @@ const isRtl = rtlLangs.includes(currentLang.split('-')[0]);
 <html data-theme="light" lang={currentLang} {...(isRtl ? { dir: "rtl" } : {})}>
     <head>
         <meta charset="UTF-8" />
+        <meta name="x-layout-settings" content={_layoutSettingsQuery?.SiteSettings?.item?.SiteDomain ?? 'NULL'} />
+        <meta name="x-layout-styles" content={_layoutStylesQuery?.SiteStyles?.item?.SiteStylesDomain ?? 'NULL'} />
+        <meta name="x-layout-loc" content={contentPayload.loc ?? 'NULL'} />
+        <meta name="x-layout-resolved-settings" content={resolvedSiteSettings?.SiteSettings?.item?.SiteDomain ?? 'NULL-or-empty'} />
         {!isCmsEdit && optiWebProjectId && (
             <link rel="preload" href={`//cdn.optimizely.com/js/${optiWebProjectId}.js`} as="script" />
             <link rel="preconnect" href="//logx.optimizely.com" />
