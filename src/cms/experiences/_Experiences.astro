@@ -6,6 +6,36 @@ import Layout from '../../layouts/Layout.astro';
 import Section from '../compositions/Section/Section.astro';
 const previewPayload = Astro.props.data as ContentPayload;
 
+// URL-based site settings/styles overrides.
+// To activate for a path: create a SiteSettings item in CMS with SiteDomain = "<key>.override"
+// and a SiteStyles item with SiteStylesDomain = "<key>.override", then add the path here.
+const URL_OVERRIDES: Record<string, string> = {
+    '/confie/': 'confie.override',
+    '/freeway/': 'freeway.override',
+};
+
+const currentPath = Astro.url.pathname;
+const overrideKey = Object.entries(URL_OVERRIDES)
+    .find(([prefix]) => currentPath.includes(prefix))?.[1] ?? null;
+
+let overrideSiteSettings = null;
+let overrideSiteStyles = null;
+
+if (overrideKey) {
+    const [settingsResult, stylesResult] = await Promise.all([
+        getOptimizelySdk(previewPayload).siteSettingsByHostname({
+            domain: overrideKey,
+            locale: [previewPayload.loc as Locales],
+        }),
+        getOptimizelySdk(previewPayload).siteStylesByHostname({
+            domain: overrideKey,
+            locale: [previewPayload.loc as Locales],
+        }),
+    ]);
+    overrideSiteSettings = settingsResult?.SiteSettings?.item ?? null;
+    overrideSiteStyles = stylesResult?.SiteStyles?.item ?? null;
+}
+
 const optiResponse = await getOptimizelySdk(previewPayload).getExperience({
     key: previewPayload.key,
     ver: previewPayload.ver,
@@ -55,6 +85,8 @@ const pageClass = 'page-experience';
     defaultUrl={defaultUrl}
     hierarchicalUrl={hierarchicalUrl ?? ''}
     extPreviewEnabled={extPreviewEnabled}
+    overrideSiteSettings={overrideSiteSettings}
+    overrideSiteStyles={overrideSiteStyles}
 >
     <div class={`vb:outline relative w-full flex-1 ${pageClass}`}>
         {
