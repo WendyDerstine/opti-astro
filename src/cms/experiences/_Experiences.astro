@@ -7,30 +7,41 @@ import Section from '../compositions/Section/Section.astro';
 const previewPayload = Astro.props.data as ContentPayload;
 
 // Dynamic URL-based site settings/styles overrides.
-// For any path, the first URL segment is used as a lookup key (<segment>.override).
+// Every segment in the URL path is tried as a lookup key (<segment>.override) in parallel.
+// The first segment that matches a CMS SiteSettings/SiteStyles item wins.
 // To activate for a new company: just create a SiteSettings item in CMS with
 // SiteDomain = "<segment>.override" and a SiteStyles item with
 // SiteStylesDomain = "<segment>.override". No code changes needed.
 const currentPath = Astro.url.pathname;
-const firstSegment = currentPath.split('/').filter(Boolean)[0] ?? null;
-const overrideKey = firstSegment ? `${firstSegment}.override` : null;
+const segments = currentPath.split('/').filter(Boolean);
 
 let overrideSiteSettings = null;
 let overrideSiteStyles = null;
 
-if (overrideKey) {
-    const [settingsResult, stylesResult] = await Promise.all([
-        getOptimizelySdk(previewPayload).siteSettingsByHostname({
-            domain: overrideKey,
-            locale: [previewPayload.loc as Locales],
-        }),
-        getOptimizelySdk(previewPayload).siteStylesByHostname({
-            domain: overrideKey,
-            locale: [previewPayload.loc as Locales],
-        }),
-    ]);
-    overrideSiteSettings = settingsResult?.SiteSettings?.item ?? null;
-    overrideSiteStyles = stylesResult?.SiteStyles?.item ?? null;
+if (segments.length > 0) {
+    // Query all segments in parallel — most will return null, one may match
+    const overrideResults = await Promise.all(
+        segments.map(seg => Promise.all([
+            getOptimizelySdk(previewPayload).siteSettingsByHostname({
+                domain: `${seg}.override`,
+                locale: [previewPayload.loc as Locales],
+            }),
+            getOptimizelySdk(previewPayload).siteStylesByHostname({
+                domain: `${seg}.override`,
+                locale: [previewPayload.loc as Locales],
+            }),
+        ]))
+    );
+    // Use the first segment that returned a CMS result
+    for (const [settingsResult, stylesResult] of overrideResults) {
+        const foundSettings = settingsResult?.SiteSettings?.item ?? null;
+        const foundStyles = stylesResult?.SiteStyles?.item ?? null;
+        if (foundSettings || foundStyles) {
+            overrideSiteSettings = foundSettings;
+            overrideSiteStyles = foundStyles;
+            break;
+        }
+    }
 }
 
 const optiResponse = await getOptimizelySdk(previewPayload).getExperience({
