@@ -91,8 +91,16 @@ const hierarchicalUrl =
         : '';
         
 const pageClass = 'page-experience';
+
+// TEMP DEBUG — remove after diagnosis
+const _debugSettingsDomain = resolvedSiteSettings?.SiteSettings?.item?.SiteDomain ?? 'NULL';
+const _debugStylesDomain = resolvedSiteStyles?.SiteStyles?.item?.SiteStylesDomain ?? 'NULL';
+const _debugHost = host;
 ---
 
+<meta name="x-cms-debug-settings" content={_debugSettingsDomain} />
+<meta name="x-cms-debug-styles" content={_debugStylesDomain} />
+<meta name="x-cms-debug-host" content={_debugHost} />
 <Layout
     title={metaTitle}
     description={metaDescription}
