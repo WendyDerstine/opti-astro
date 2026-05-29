@@ -6,41 +6,6 @@ import Layout from '../../layouts/Layout.astro';
 import Section from '../compositions/Section/Section.astro';
 const previewPayload = Astro.props.data as ContentPayload;
 
-// URL-based site settings/styles overrides.
-// Every segment in the URL path is tried as a lookup key (<segment>.override) in parallel.
-// The first segment that matches a CMS item wins.
-// Layout.astro handles the hostname-based defaults via its own lookup — we only pass
-// override items here when a segment match is found.
-const currentPath = Astro.url.pathname;
-const segments = currentPath.split('/').filter(Boolean);
-
-let overrideSiteSettings = null;
-let overrideSiteStyles = null;
-
-if (segments.length > 0) {
-    const overrideResults = await Promise.all(
-        segments.map(seg => Promise.all([
-            getOptimizelySdk(previewPayload).siteSettingsByHostname({
-                domain: `${seg}.override`,
-                locale: [previewPayload.loc as Locales],
-            }),
-            getOptimizelySdk(previewPayload).siteStylesByHostname({
-                domain: `${seg}.override`,
-                locale: [previewPayload.loc as Locales],
-            }),
-        ]))
-    );
-    for (const [settingsResult, stylesResult] of overrideResults) {
-        const foundSettings = settingsResult?.SiteSettings?.item ?? null;
-        const foundStyles = stylesResult?.SiteStyles?.item ?? null;
-        if (foundSettings || foundStyles) {
-            overrideSiteSettings = foundSettings;
-            overrideSiteStyles = foundStyles;
-            break;
-        }
-    }
-}
-
 const optiResponse = await getOptimizelySdk(previewPayload).getExperience({
     key: previewPayload.key,
     ver: previewPayload.ver,
@@ -90,8 +55,6 @@ const pageClass = 'page-experience';
     defaultUrl={defaultUrl}
     hierarchicalUrl={hierarchicalUrl ?? ''}
     extPreviewEnabled={extPreviewEnabled}
-    overrideSiteSettings={overrideSiteSettings}
-    overrideSiteStyles={overrideSiteStyles}
 >
     <div class={`vb:outline relative w-full flex-1 ${pageClass}`}>
         {
