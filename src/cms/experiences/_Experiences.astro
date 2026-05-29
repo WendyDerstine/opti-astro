@@ -6,17 +6,14 @@ import Layout from '../../layouts/Layout.astro';
 import Section from '../compositions/Section/Section.astro';
 const previewPayload = Astro.props.data as ContentPayload;
 
-// URL-based site settings/styles overrides.
-// To activate for a path: create a SiteSettings item in CMS with SiteDomain = "<key>.override"
-// and a SiteStyles item with SiteStylesDomain = "<key>.override", then add the path here.
-const URL_OVERRIDES: Record<string, string> = {
-    '/confie/': 'confie.override',
-    '/freeway/': 'freeway.override',
-};
-
+// Dynamic URL-based site settings/styles overrides.
+// For any path, the first URL segment is used as a lookup key (<segment>.override).
+// To activate for a new company: just create a SiteSettings item in CMS with
+// SiteDomain = "<segment>.override" and a SiteStyles item with
+// SiteStylesDomain = "<segment>.override". No code changes needed.
 const currentPath = Astro.url.pathname;
-const overrideKey = Object.entries(URL_OVERRIDES)
-    .find(([prefix]) => currentPath.includes(prefix))?.[1] ?? null;
+const firstSegment = currentPath.split('/').filter(Boolean)[0] ?? null;
+const overrideKey = firstSegment ? `${firstSegment}.override` : null;
 
 let overrideSiteSettings = null;
 let overrideSiteStyles = null;
