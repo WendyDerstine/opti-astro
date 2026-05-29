@@ -96,11 +96,15 @@ const pageClass = 'page-experience';
 const _debugSettingsDomain = resolvedSiteSettings?.SiteSettings?.item?.SiteDomain ?? 'NULL';
 const _debugStylesDomain = resolvedSiteStyles?.SiteStyles?.item?.SiteStylesDomain ?? 'NULL';
 const _debugHost = host;
+const _debugLoc = previewPayload.loc ?? 'NULL';
+const _debugCtx = previewPayload.ctx ?? 'NULL';
 ---
 
 <meta name="x-cms-debug-settings" content={_debugSettingsDomain} />
 <meta name="x-cms-debug-styles" content={_debugStylesDomain} />
 <meta name="x-cms-debug-host" content={_debugHost} />
+<meta name="x-cms-debug-loc" content={_debugLoc} />
+<meta name="x-cms-debug-ctx" content={_debugCtx} />
 <Layout
     title={metaTitle}
     description={metaDescription}
