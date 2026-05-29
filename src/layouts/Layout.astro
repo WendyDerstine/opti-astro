@@ -47,25 +47,54 @@ const contentVersion = contentPayload.ver || '';
 const isDraft = EXTERNAL_PREVIEW_ENABLED && extPreviewEnabled && await isDraftContent(contentVersion);
 
 const { host } = Astro.url;
-const siteSettings = await getOptimizelySdk(
+let siteSettings = await getOptimizelySdk(
     contentPayload
 ).siteSettingsByHostname({
     domain: host,
     locale: [contentPayload.loc as Locales],
 });
 
-const optiWebProjectId = siteSettings?.SiteSettings?.item?.OptiWebProjectId || null;
 const pageVariationWeb = Astro.url.searchParams.get('var') || null;
 
 const odpEnabled = !!OPTIMIZELY_DATA_PLATFORM_PRIVATE_KEY;
 const odpPublicKey = odpEnabled && OPTIMIZELY_DATA_PLATFORM_PRIVATE_KEY?.split('.')[0];
 // const odpScript = odpPublicKey && getOdpScript(odpPublicKey);
 
-const siteStyles = await getOptimizelySdk(contentPayload).siteStylesByHostname({
+let siteStyles = await getOptimizelySdk(contentPayload).siteStylesByHostname({
     domain: host,
     locale: [contentPayload.loc as Locales],
 });
 
+// URL segment-based branding override.
+// Each path segment is checked against CMS items keyed as "<segment>.override".
+// First match is merged on top of the hostname defaults above.
+// Lives here in Layout.astro where GraphQL calls are confirmed working.
+const _segments = Astro.url.pathname.split('/').filter(Boolean);
+if (_segments.length > 0) {
+    const _segmentResults = await Promise.all(
+        _segments.map(seg => Promise.all([
+            getOptimizelySdk(contentPayload).siteSettingsByHostname({
+                domain: `${seg}.override`,
+                locale: [contentPayload.loc as Locales],
+            }),
+            getOptimizelySdk(contentPayload).siteStylesByHostname({
+                domain: `${seg}.override`,
+                locale: [contentPayload.loc as Locales],
+            }),
+        ]))
+    );
+    for (const [_sr, _sy] of _segmentResults) {
+        const _foundSettings = _sr?.SiteSettings?.item ?? null;
+        const _foundStyles = _sy?.SiteStyles?.item ?? null;
+        if (_foundSettings || _foundStyles) {
+            if (_foundSettings) siteSettings = { SiteSettings: { item: { ...siteSettings?.SiteSettings?.item, ..._foundSettings } } } as any;
+            if (_foundStyles) siteStyles = { SiteStyles: { item: { ...siteStyles?.SiteStyles?.item, ..._foundStyles } } } as any;
+            break;
+        }
+    }
+}
+
+const optiWebProjectId = siteSettings?.SiteSettings?.item?.OptiWebProjectId || null;
 const siteFont = getSiteFont(siteStyles?.SiteStyles?.item);
 
 const cssFileMeta = siteStyles?.SiteStyles?.item?.cssFile?._metadata;
