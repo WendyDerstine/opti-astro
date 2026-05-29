@@ -63,6 +63,32 @@
 				"allowedTypes": [],
 				"restrictedTypes": []
 			}
+		},
+		"PageSiteSettings": {
+			"type": "contentReference",
+			"displayName": "Override Site Settings",
+			"description": "Optional: override the default site settings (logo, nav) for this page only.",
+			"isLocalized": false,
+			"isRequired": false,
+			"group": "PageOverrides",
+			"sortOrder": 10,
+			"allowedTypes": [
+				"SiteSettings"
+			],
+			"restrictedTypes": []
+		},
+		"PageSiteStyles": {
+			"type": "contentReference",
+			"displayName": "Override Site Styles",
+			"description": "Optional: override the default color scheme and fonts for this page only.",
+			"isLocalized": false,
+			"isRequired": false,
+			"group": "PageOverrides",
+			"sortOrder": 20,
+			"allowedTypes": [
+				"SiteStyles"
+			],
+			"restrictedTypes": []
 		}
 	}
 }
