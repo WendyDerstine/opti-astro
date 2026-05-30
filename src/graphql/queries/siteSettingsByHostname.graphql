@@ -1,7 +1,7 @@
 query siteSettingsByHostname($domain: String!, $locale: [Locales]!) {
     SiteSettings(
         locale: $locale
-        where: { SiteDomain: { like: $domain } }
+        where: { SiteDomain: { eq: $domain } }
         orderBy: { _metadata: { lastModified: DESC } }
         limit: 1
     ) {
