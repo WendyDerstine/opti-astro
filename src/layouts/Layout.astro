@@ -66,9 +66,19 @@ const siteStyles = await getOptimizelySdk(contentPayload).siteStylesByHostname({
     locale: [contentPayload.loc as Locales],
 });
 
-const siteFont = getSiteFont(siteStyles?.SiteStyles?.item);
+// Apply any branding overrides resolved by middleware (locals set before next())
+const overrideSettings = Astro.locals.overrideSettings ?? null;
+const overrideStyles = Astro.locals.overrideStyles ?? null;
+const effectiveSiteSettings = overrideSettings
+    ? { SiteSettings: { item: { ...siteSettings?.SiteSettings?.item, ...overrideSettings } } } as typeof siteSettings
+    : siteSettings;
+const effectiveSiteStyles = overrideStyles
+    ? { SiteStyles: { item: { ...siteStyles?.SiteStyles?.item, ...overrideStyles } } } as typeof siteStyles
+    : siteStyles;
 
-const cssFileMeta = siteStyles?.SiteStyles?.item?.cssFile?._metadata;
+const siteFont = getSiteFont(effectiveSiteStyles?.SiteStyles?.item);
+
+const cssFileMeta = effectiveSiteStyles?.SiteStyles?.item?.cssFile?._metadata;
 const externalStylesUrl = cssFileMeta?.url?.default && cssFileMeta?.lastModified
     ? `${cssFileMeta.url.default}?${new Date(cssFileMeta.lastModified).getTime()}`
     : null;
@@ -95,7 +105,7 @@ const isRtl = rtlLangs.includes(currentLang.split('-')[0]);
         {odpEnabled && (
             <DataPlatform odpPublicKey={odpPublicKey} />
         )}
-        {siteStyles && <SiteStyles siteStyles={siteStyles} />}
+        {effectiveSiteStyles && <SiteStyles siteStyles={effectiveSiteStyles} />}
         {siteFont && <Font cssVariable={siteFont} preload />}
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width" />
@@ -134,7 +144,7 @@ const isRtl = rtlLangs.includes(currentLang.split('-')[0]);
                 />
             )
         }
-        <Header siteSettings={siteSettings} contentPayload={contentPayload} />
+        <Header siteSettings={effectiveSiteSettings} contentPayload={contentPayload} />
         <slot />
         <Footer siteSettings={siteSettings} />
 
