@@ -1,7 +1,7 @@
 query siteStylesByHostname($domain: String!, $locale: [Locales]!) {
     SiteStyles(
         locale: $locale
-        where: { SiteStylesDomain: { eq: $domain } }
+        where: { SiteStylesDomain: { like: $domain } }
         orderBy: { _metadata: { lastModified: DESC } }
         limit: 1
     ) {
