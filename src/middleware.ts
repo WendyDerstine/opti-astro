@@ -25,45 +25,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return redirectResponse;
   }
 
-  // URL segment-based branding override.
-  // Checks each path segment against CMS items keyed as "<segment>.override".
-  // Uses the same ctx:'view' pattern as the placeholder middleware below (proven working).
-  // Results are stored in locals so Layout.astro can apply them without extra queries.
-  context.locals.overrideSettings = null;
-  context.locals.overrideStyles = null;
-  const _overrideSegments = context.url.pathname.split('/').filter(Boolean);
-  if (_overrideSegments.length > 0) {
-    const _locale = localeToSdkLocale(context.currentLocale) as Locales;
-    const _overridePayload: ContentPayload = {
-      ctx: 'view',
-      key: '',
-      ver: '',
-      loc: _locale,
-      preview_token: '',
-      types: [],
-    };
-    const _sdk = getOptimizelySdk(_overridePayload);
-    try {
-      const _results = await Promise.all(
-        _overrideSegments.map(seg => Promise.all([
-          _sdk.siteSettingsByHostname({ domain: `${seg}.override`, locale: [_locale] }),
-          _sdk.siteStylesByHostname({ domain: `${seg}.override`, locale: [_locale] }),
-        ]))
-      );
-      for (const [_sr, _sy] of _results) {
-        const _s = _sr?.SiteSettings?.item ?? null;
-        const _y = _sy?.SiteStyles?.item ?? null;
-        if (_s || _y) {
-          context.locals.overrideSettings = _s;
-          context.locals.overrideStyles = _y;
-          break;
-        }
-      }
-    } catch (e) {
-      // Override lookup failure is non-fatal — site defaults apply
-    }
-  }
-
   const response = await next();
   
   // Only process HTML responses
