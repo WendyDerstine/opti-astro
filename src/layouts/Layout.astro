@@ -146,7 +146,7 @@ const isRtl = rtlLangs.includes(currentLang.split('-')[0]);
         }
         <Header siteSettings={effectiveSiteSettings} contentPayload={contentPayload} />
         <slot />
-        <Footer siteSettings={siteSettings} />
+        <Footer siteSettings={effectiveSiteSettings} />
 
         {
             ASTRO_TRANSITIONS_ENABLED && !isCmsEdit && optiWebProjectId && (
