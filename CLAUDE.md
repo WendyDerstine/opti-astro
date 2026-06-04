@@ -219,3 +219,19 @@ Comprehensive documentation is available in the `docs/` folder:
 2. **Locales**: Understand the internationalization system (see docs/LOCALE-CONFIG.md)
 3. **Layouts**: Master the CMS layout tools (see docs/ROW-COLUMN-LAYOUT-GUIDE.md)
 4. **Interactivity**: Choose between AlpineJS and Svelte5 based on complexity (see Client-Side Interactivity Guidelines)
+
+## Claude Code Workflow Rules
+
+### Before Making Any Changes
+1. **Verify the actual rendered element** — curl or inspect the live demo (`https://wenoptiunum.netlify.app/`) to confirm the exact HTML tag, classes, and component file before touching any source file. Never assume which component renders a given element.
+2. **Diff against live demo** — compare the rendered HTML of the demo against the target site before writing code, so changes address the real difference.
+
+### Branching & Commits
+- **Use `wendy-wip` for all iterative work.** This branch is excluded from Netlify deploys (see `netlify.toml`). Push freely here, then open a PR or merge to `WenOptiUnum` only when the change is verified and ready — that is the only build that costs money.
+- **Batch all file changes into a single commit** using the GitHub Trees API. Never push a revert and a fix as separate commits. One task = one commit = one build.
+
+### GitHub API
+- Use `GITHUB_TOKEN` env var for the API token (stored in local Claude memory, not here).
+- Repo: `WendyDerstine/opti-astro` — active branch: `WenOptiUnum`, iteration branch: `wendy-wip`.
+- Demo URL: `https://wenoptiunum.netlify.app/`
+- Target reference site: `https://www.unum.com/`

@@ -1,0 +1,7 @@
+[build]
+  command = "yarn build"
+  publish = "dist"
+
+# wendy-wip is an iteration branch — never deploy it
+[context.wendy-wip]
+  ignore = "exit 0"
