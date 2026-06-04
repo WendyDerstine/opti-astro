@@ -86,7 +86,8 @@ const componentClass = 'component-hero';
 
     <!-- Content -->
     <div class="relative z-10 px-6" class:list={textClasses}>
-        <h1 class="text-5xl font-bold md:text-6xl" class:list={textClasses}>{data?.Heading}</h1>
+        <div class="mb-3 h-1 max-w-[40px] rounded bg-[#015294] lg:max-w-[60px]"></div>
+        <h1 class="text-[3.6rem] font-light leading-[1.2] md:text-[4rem] md:leading-[1.23] lg:text-[5.2rem] mb-6 lg:mb-10" class:list={textClasses}>{data?.Heading}</h1>
         <p class="mx-auto mt-4 text-xl" class:list={textClasses}>
             {data?.SubHeading}
         </p>
