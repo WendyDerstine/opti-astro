@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
 @import 'tailwindcss';
 @source "../../src/**/*.opti-style.json";
 /* @import './inter.css'; */
-/* @theme {--font-sans: InterVariable, sans-serif;} */
+/* @theme {
+    --font-heading: 'Open Sans', sans-serif;--font-sans: InterVariable, sans-serif;} */
 
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
@@ -49,6 +51,7 @@
 }
 
 @theme {
+    --font-heading: 'Open Sans', sans-serif;
     /* NOTE: currently uses Tailwind default font sizes as an example,
        but can be customized as needed */
     --font-size-xs: 0.75rem;    /* 12px */
