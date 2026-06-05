@@ -127,7 +127,7 @@ const contentClasses = isFullSplit
             {/* Always visible heading */}
             {data.Heading && (
                 <div class={headingClasses}>
-                    <h2 class={`font-['Open_Sans'] text-[2.25rem] font-light leading-[1.2] md:text-[2.5rem] md:leading-[1.23] lg:text-[3.25rem] text-[#335e7a] ${cardHeaderStyles}`}>
+                    <h2 class={`font-heading text-[2.25rem] font-light leading-[1.2] md:text-[2.5rem] md:leading-[1.23] lg:text-[3.25rem] text-[#335e7a] ${cardHeaderStyles}`}>
                         {data.Heading}
                     </h2>
                 </div>
@@ -167,7 +167,7 @@ const contentClasses = isFullSplit
             {data.Heading && (
                 <>
                     <div class="mb-3 h-1 max-w-[40px] rounded bg-[#015294] lg:max-w-[60px]"></div>
-                    <h2 class={`font-['Open_Sans'] text-[2.25rem] font-light leading-[1.2] md:text-[2.5rem] md:leading-[1.23] lg:text-[3.25rem] text-[#335e7a] ${cardHeaderStyles}`} class:list={cssClassesForText}>
+                    <h2 class={`font-heading text-[2.25rem] font-light leading-[1.2] md:text-[2.5rem] md:leading-[1.23] lg:text-[3.25rem] text-[#335e7a] ${cardHeaderStyles}`} class:list={cssClassesForText}>
                         {data.Heading}
                     </h2>
                 </>
