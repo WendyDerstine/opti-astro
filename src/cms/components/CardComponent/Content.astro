@@ -127,7 +127,7 @@ const contentClasses = isFullSplit
             {/* Always visible heading */}
             {data.Heading && (
                 <div class={headingClasses}>
-                    <h2 class={`text-4xl font-bold ${cardHeaderStyles}`}>
+                    <h2 class={`text-4xl font-normal ${cardHeaderStyles}`}>
                         {data.Heading}
                     </h2>
                 </div>
@@ -165,7 +165,7 @@ const contentClasses = isFullSplit
         <!-- Normal Mode: All content together -->
         <>
             {data.Heading && (
-                <h2 class={`text-4xl font-bold ${cardHeaderStyles}`} class:list={cssClassesForText}>
+                <h2 class={`text-4xl font-normal ${cardHeaderStyles}`} class:list={cssClassesForText}>
                     {data.Heading}
                 </h2>
             )}
