@@ -4,6 +4,16 @@
  */
 
 /**
+ * Human-readable display names for CMS content types.
+ * Types not listed here will fall back to the raw type key.
+ * Base types starting with "_" are filtered out entirely (see mergeFacets).
+ */
+export const CONTENT_TYPE_DISPLAY_NAMES: Record<string, string> = {
+	ArticlePage: 'Article',
+	BlankExperience: 'Experience',
+};
+
+/**
  * Sort order mappings for ArticlePage content type
  */
 export const articlePageSortOrderMap: Record<string, any> = {
@@ -132,7 +142,7 @@ export function mergeFacets(
 	experienceFacets: any
 ): {
 	authors: Array<{ name: string; count: number }>;
-	types: Array<{ name: string; count: number }>;
+	types: Array<{ name: string; displayName: string; count: number }>;
 } {
 	// Process author facets (only from ArticlePage)
 	const authorFacets = articleFacets?.Author?.filter((f: any) => f?.name) || [];
@@ -141,15 +151,21 @@ export function mergeFacets(
 	const articleTypeFacets = articleFacets?._metadata?.types?.filter((f: any) => f?.name) || [];
 	const experienceTypeFacets = experienceFacets?._metadata?.types?.filter((f: any) => f?.name) || [];
 
-	// Combine type facets and merge counts for duplicate types
+	// Combine type facets and merge counts for duplicate types.
+	// Filter out base types (starting with "_") — they are internal CMS base classes
+	// and not meaningful filter choices for end users.
 	const typeFacetsMap = new Map<string, number>();
 	[...articleTypeFacets, ...experienceTypeFacets].forEach((f: any) => {
-		if (f?.name) {
+		if (f?.name && !f.name.startsWith('_')) {
 			typeFacetsMap.set(f.name, (typeFacetsMap.get(f.name) || 0) + (f.count || 0));
 		}
 	});
 
-	const typeFacets = Array.from(typeFacetsMap.entries()).map(([name, count]) => ({ name, count }));
+	const typeFacets = Array.from(typeFacetsMap.entries()).map(([name, count]) => ({
+		name,
+		displayName: CONTENT_TYPE_DISPLAY_NAMES[name] ?? name,
+		count,
+	}));
 
 	return {
 		authors: authorFacets.map((f: any) => ({ name: f.name, count: f.count })),
