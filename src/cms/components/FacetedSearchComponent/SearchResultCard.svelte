@@ -8,7 +8,14 @@
         getImageAlt,
         getPlaceholderGradient,
     } from './lib/searchResultHelpers';
+    import { CONTENT_TYPE_DISPLAY_NAMES } from './lib/facetedSearchHelpers';
     import { OPTIMIZELY_GRAPH_SINGLE_KEY } from 'astro:env/client';
+
+    const TOPIC_DISPLAY_NAMES: Record<string, string> = {
+        news: 'News', insights: 'Insights', leadership: 'Leadership',
+        stories: 'Stories', innovation: 'Innovation', culture: 'Culture',
+        events: 'Events', resources: 'Resources',
+    };
 
     interface Props {
         result: any;
@@ -144,6 +151,14 @@
                 {/if}
             </div>
 
+            {#if !isExperience(result) && result.Topic}
+                <div class="mt-1">
+                    <span class="inline-block bg-primary text-primary-content text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                        {TOPIC_DISPLAY_NAMES[result.Topic] ?? result.Topic}
+                    </span>
+                </div>
+            {/if}
+
             {#if getContentExcerpt(result)}
                 <p class="text-sm text-base-content/70 line-clamp-3">
                     {getContentExcerpt(result)}
@@ -217,7 +232,7 @@
                 {/if}
 
                 <div
-                    class="flex items-center gap-4 text-sm text-base-content/60 mb-3"
+                    class="flex items-center gap-4 text-sm text-base-content/60 mb-2"
                 >
                     {#if !isExperience(result) && result.Author}
                         <span>By {result.Author}</span>
@@ -231,6 +246,14 @@
                         >
                     {/if}
                 </div>
+
+                {#if !isExperience(result) && result.Topic}
+                    <div class="mb-3">
+                        <span class="inline-block bg-primary text-primary-content text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                            {TOPIC_DISPLAY_NAMES[result.Topic] ?? result.Topic}
+                        </span>
+                    </div>
+                {/if}
 
                 {#if getContentExcerpt(result)}
                     <p class="text-sm text-base-content/70 mb-4 line-clamp-3">
