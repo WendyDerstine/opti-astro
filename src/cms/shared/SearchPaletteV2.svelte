@@ -32,7 +32,7 @@
 
 	// Empty initial data - all fetching will be client-side
 	const initialResults: any[] = [];
-	const initialFacets = { authors: [], types: [] };
+	const initialFacets = { authors: [], types: [], topics: [] };
 	const initialTotal = 0;
 
 	function openModal() {
