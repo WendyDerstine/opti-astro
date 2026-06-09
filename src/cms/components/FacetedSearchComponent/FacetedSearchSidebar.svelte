@@ -9,27 +9,32 @@
 		facets: {
 			authors: Facet[];
 			types: Facet[];
+			topics: Facet[];
 		};
 		selectedAuthors: string[];
 		selectedTypes: string[];
+		selectedTopics: string[];
 		searchTerm: string;
 		activeFilterCount: number;
 		showAuthorFacet: boolean;
 		showTypeFacet: boolean;
+		showTopicFacet: boolean;
 		isEditMode?: boolean;
 		onClearAll: () => void;
-		onRemoveFilter: (type: 'author' | 'type' | 'search', value?: string) => void;
-		onToggleFacet: (type: 'author' | 'type', value: string) => void;
+		onRemoveFilter: (type: 'author' | 'type' | 'topic' | 'search', value?: string) => void;
+		onToggleFacet: (type: 'author' | 'type' | 'topic', value: string) => void;
 	}
 
 	let {
 		facets,
 		selectedAuthors,
 		selectedTypes,
+		selectedTopics,
 		searchTerm,
 		activeFilterCount,
 		showAuthorFacet,
 		showTypeFacet,
+		showTopicFacet,
 		isEditMode = false,
 		onClearAll,
 		onRemoveFilter,
@@ -38,10 +43,11 @@
 
 	let expandedFacets = $state({
 		authors: true,
-		types: true
+		types: true,
+		topics: true,
 	});
 
-	function toggleFacetExpansion(facetName: 'authors' | 'types') {
+	function toggleFacetExpansion(facetName: 'authors' | 'types' | 'topics') {
 		expandedFacets[facetName] = !expandedFacets[facetName];
 	}
 </script>
@@ -100,6 +106,18 @@
 								disabled={isEditMode}
 							>
 								{facets.types.find(t => t.name === type)?.displayName ?? type}
+								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+								</svg>
+							</button>
+						{/each}
+						{#each selectedTopics as topic}
+							<button
+								class="badge badge-accent gap-2"
+								onclick={() => onRemoveFilter('topic', topic)}
+								disabled={isEditMode}
+							>
+								{facets.topics.find(t => t.name === topic)?.displayName ?? topic}
 								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 								</svg>
@@ -178,6 +196,44 @@
 									/>
 									<span class="flex-1 text-sm">{type.displayName ?? type.name}</span>
 									<span class="text-xs text-base-content/50">({type.count})</span>
+								</label>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- Topic Facet -->
+			{#if showTopicFacet && facets.topics.length > 0}
+				<div class="mb-4">
+					<button
+						class="flex items-center justify-between w-full text-left font-medium mb-2"
+						onclick={() => toggleFacetExpansion('topics')}
+					>
+						<span>Topic</span>
+						<svg
+							class="w-4 h-4 transition-transform"
+							class:rotate-180={!expandedFacets.topics}
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+					{#if expandedFacets.topics}
+						<div class="space-y-2">
+							{#each facets.topics as topic}
+								<label class="flex items-center gap-2 cursor-pointer hover:bg-base-200 p-2 rounded">
+									<input
+										type="checkbox"
+										class="checkbox checkbox-sm"
+										checked={selectedTopics.includes(topic.name)}
+										onchange={() => onToggleFacet('topic', topic.name)}
+										disabled={isEditMode}
+									/>
+									<span class="flex-1 text-sm">{topic.displayName ?? topic.name}</span>
+									<span class="text-xs text-base-content/50">({topic.count})</span>
 								</label>
 							{/each}
 						</div>

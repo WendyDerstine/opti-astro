@@ -13,6 +13,17 @@ export const CONTENT_TYPE_DISPLAY_NAMES: Record<string, string> = {
 	BlankExperience: 'Experience',
 };
 
+export const TOPIC_DISPLAY_NAMES: Record<string, string> = {
+	news: 'News',
+	insights: 'Insights',
+	leadership: 'Leadership',
+	stories: 'Stories',
+	innovation: 'Innovation',
+	culture: 'Culture',
+	events: 'Events',
+	resources: 'Resources',
+};
+
 /**
  * Sort order mappings for ArticlePage content type
  */
@@ -143,32 +154,38 @@ export function mergeFacets(
 ): {
 	authors: Array<{ name: string; count: number }>;
 	types: Array<{ name: string; displayName: string; count: number }>;
+	topics: Array<{ name: string; displayName: string; count: number }>;
 } {
 	// Process author facets (only from ArticlePage)
 	const authorFacets = articleFacets?.Author?.filter((f: any) => f?.name) || [];
 
-	// Merge type facets from both queries
+	// Merge type facets from both queries.
+	// Filter out base types (starting with "_") — internal CMS base classes.
 	const articleTypeFacets = articleFacets?._metadata?.types?.filter((f: any) => f?.name) || [];
 	const experienceTypeFacets = experienceFacets?._metadata?.types?.filter((f: any) => f?.name) || [];
-
-	// Combine type facets and merge counts for duplicate types.
-	// Filter out base types (starting with "_") — they are internal CMS base classes
-	// and not meaningful filter choices for end users.
 	const typeFacetsMap = new Map<string, number>();
 	[...articleTypeFacets, ...experienceTypeFacets].forEach((f: any) => {
 		if (f?.name && !f.name.startsWith('_')) {
 			typeFacetsMap.set(f.name, (typeFacetsMap.get(f.name) || 0) + (f.count || 0));
 		}
 	});
-
 	const typeFacets = Array.from(typeFacetsMap.entries()).map(([name, count]) => ({
 		name,
 		displayName: CONTENT_TYPE_DISPLAY_NAMES[name] ?? name,
 		count,
 	}));
 
+	// Topic facets (only from ArticlePage)
+	const rawTopicFacets = articleFacets?.Topic?.filter((f: any) => f?.name) || [];
+	const topicFacets = rawTopicFacets.map((f: any) => ({
+		name: f.name as string,
+		displayName: TOPIC_DISPLAY_NAMES[f.name] ?? f.name,
+		count: f.count as number,
+	}));
+
 	return {
 		authors: authorFacets.map((f: any) => ({ name: f.name, count: f.count })),
 		types: typeFacets,
+		topics: topicFacets,
 	};
 }

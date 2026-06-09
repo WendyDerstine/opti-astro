@@ -21,6 +21,7 @@ export const GET: APIRoute = async ({ url }) => {
 		// Parse array parameters
 		const authorFilters = url.searchParams.getAll('authors[]');
 		const typeFilters = url.searchParams.getAll('types[]');
+		const topicFilters = url.searchParams.getAll('topics[]');
 
 		// Build orderBy with optional semantic weight using shared helper
 		const { articlePageOrderBy: orderBy, experienceOrderBy: orderByExperience } = getSortOrderBy(
@@ -58,6 +59,7 @@ export const GET: APIRoute = async ({ url }) => {
 			orderByExperience: orderByExperience,
 			authorFilters: authorFilters.length > 0 ? authorFilters : null,
 			typeFilters: typeFilters.length > 0 ? typeFilters : null,
+			topicFilters: topicFilters.length > 0 ? topicFilters : null,
 		});
 
 		// Extract data
