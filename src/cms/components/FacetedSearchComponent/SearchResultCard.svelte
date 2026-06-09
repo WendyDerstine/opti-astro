@@ -8,14 +8,8 @@
         getImageAlt,
         getPlaceholderGradient,
     } from './lib/searchResultHelpers';
-    import { CONTENT_TYPE_DISPLAY_NAMES } from './lib/facetedSearchHelpers';
+    import { TOPIC_DISPLAY_NAMES } from './lib/facetedSearchHelpers';
     import { OPTIMIZELY_GRAPH_SINGLE_KEY } from 'astro:env/client';
-
-    const TOPIC_DISPLAY_NAMES: Record<string, string> = {
-        news: 'News', insights: 'Insights', leadership: 'Leadership',
-        stories: 'Stories', innovation: 'Innovation', culture: 'Culture',
-        events: 'Events', resources: 'Resources',
-    };
 
     interface Props {
         result: any;
