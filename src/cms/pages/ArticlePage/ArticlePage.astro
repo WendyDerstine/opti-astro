@@ -27,14 +27,25 @@ const publishedDate = format(
     'dd MMM yyyy'
 );
 
-const articleHeaderFontColor = ((post.PromoImage as any)?.item?.Url || post.PromoImage?.url?.default)
-    ? "text-neutral-content" : "text-base-content";
-const articleHeaderAuthorColor = ((post.PromoImage as any)?.item?.Url || post.PromoImage?.url?.default)
-    ? "text-neutral-content/75" : "text-base-content/65";
-const articleHeaderDateColor = ((post.PromoImage as any)?.item?.Url || post.PromoImage?.url?.default)
-    ? "text-neutral-content/55" : "text-base-content/50";
+const promoImageUrl = (post.PromoImage as any)?.item?.Url || post.PromoImage?.url?.default;
+const promoImageAlt = (post.PromoImage as any)?.item?.AltText
+    || (post.PromoImage as any)?.item?._metadata?.displayName
+    || post.Heading
+    || 'Article promo image';
 
-const graphType = post?.SeoSettings?.GraphType && post?.SeoSettings?.GraphType !== "-" ? 
+const topicDisplayNames: Record<string, string> = {
+    news: 'News',
+    insights: 'Insights',
+    leadership: 'Leadership',
+    stories: 'Stories',
+    innovation: 'Innovation',
+    culture: 'Culture',
+    events: 'Events',
+    resources: 'Resources',
+};
+const topicLabel = (post as any).Topic ? (topicDisplayNames[(post as any).Topic] ?? (post as any).Topic) : null;
+
+const graphType = post?.SeoSettings?.GraphType && post?.SeoSettings?.GraphType !== "-" ?
     post?.SeoSettings?.GraphType : 'article';
 const defaultUrl = post?._metadata?.url?.default || '';
 const hierarchicalUrl = post?._metadata?.url?.type === "SIMPLE" ? post?._metadata?.url?.hierarchical : '';
@@ -53,57 +64,64 @@ const pageClass = 'page-article';
     hierarchicalUrl={hierarchicalUrl ?? ''}
     extPreviewEnabled={extPreviewEnabled}
 >
-    <div class={`max-w-screen-6xl mx-auto ${pageClass}`}>
-        <main class="mt-10">
-            <div
-                class="relative mx-auto mb-4 w-full max-w-screen-xl md:mb-0 bg-base-200"
-                style="height: 24em;"
-            >
-                { ((post.PromoImage as any)?.item?.Url || post.PromoImage?.url?.default) && 
-                    <div
-                        class="absolute bottom-0 start-0 z-10 h-full w-full"
-                        style="background-image: linear-gradient(180deg,transparent,rgba(0,0,0,.7));"
-                    >
-                    </div>
-                    <AstroImage
-                        src={(post.PromoImage as any)?.item?.Url || post.PromoImage?.url?.default}
-                        class="absolute top-0 start-0 z-0 h-full w-full object-cover"
-                        alt={(post.PromoImage as any)?.item?.AltText || (post.PromoImage as any)?.item?._metadata?.displayName || post.Heading || 'Article promo image'}
-                        inferSize={true}
-                        data-epi-edit={isCmsEdit ? "PromoImage" : undefined}
-                    />
-                }
-                <div class="absolute bottom-0 start-0 z-20 p-4">
-                    <h1
-                        class={`text-4xl lg:text-6xl leading-tight font-semibold pb-4 ${articleHeaderFontColor}`}
-                        data-epi-edit={isCmsEdit ? "Heading" : undefined}
-                    >
-                        {post?.Heading}
-                    </h1>
-                    <h2
-                        class={`text-base lg:text-2xl leading-tight font-semibold ${articleHeaderFontColor}`}
+    <div class={`max-w-screen-xl mx-auto px-4 2xl:px-0 ${pageClass}`}>
+        <main class="mt-10 mb-16">
+
+            <header class="mb-8">
+                <h1
+                    class="text-4xl lg:text-5xl font-semibold text-base-content leading-tight mb-4"
+                    data-epi-edit={isCmsEdit ? "Heading" : undefined}
+                >
+                    {post?.Heading}
+                </h1>
+
+                {post?.SubHeading && (
+                    <p
+                        class="text-xl lg:text-2xl text-base-content/75 font-normal mb-4"
                         data-epi-edit={isCmsEdit ? "SubHeading" : undefined}
                     >
                         {post?.SubHeading}
-                    </h2>
-                    <div class="mt-3 flex">
-                        <div>
-                            <p class={`text-sm font-semibold ${articleHeaderAuthorColor}`}
-                                data-epi-edit={isCmsEdit ? "Author" : undefined}
-                            >
-                                {post?.Author}
-                            </p>
-                            <p class={`text-xs font-semibold ${articleHeaderDateColor}`}
-                                data-epi-edit={isCmsEdit ? "publishedDate" : undefined}
-                            >
-                                {publishedDate}
-                            </p>
-                        </div>
-                    </div>
+                    </p>
+                )}
+
+                <div class="flex items-center gap-3 text-sm text-base-content/60">
+                    {post?.Author && (
+                        <span
+                            class="font-semibold text-base-content/75"
+                            data-epi-edit={isCmsEdit ? "Author" : undefined}
+                        >
+                            {post?.Author}
+                        </span>
+                    )}
+                    {post?.Author && <span aria-hidden="true">&middot;</span>}
+                    <span data-epi-edit={isCmsEdit ? "publishedDate" : undefined}>
+                        {publishedDate}
+                    </span>
                 </div>
-            </div>
+            </header>
+
+            {promoImageUrl && (
+                <div class="mb-8 w-full rounded-2xl overflow-hidden">
+                    <AstroImage
+                        src={promoImageUrl}
+                        class="w-full h-auto"
+                        alt={promoImageAlt}
+                        inferSize={true}
+                        data-epi-edit={isCmsEdit ? "PromoImage" : undefined}
+                    />
+                </div>
+            )}
+
+            {topicLabel && (
+                <div class="mb-8" data-epi-edit={isCmsEdit ? "Topic" : undefined}>
+                    <span class="inline-block bg-primary text-primary-content text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full">
+                        {topicLabel}
+                    </span>
+                </div>
+            )}
+
             <article
-                class="prose dark:prose-invert md:prose-lg lg:prose-xl mx-auto mt-12 mb-12 max-w-screen-xl px-4 2xl:px-0 prose-img:rounded-[2rem] prose-img:p-4 "
+                class="prose dark:prose-invert md:prose-lg lg:prose-xl max-w-none prose-img:rounded-[2rem] prose-img:p-4"
                 data-epi-edit={isCmsEdit ? "Body" : undefined}
                 set:html={post.Body?.html}
             />
