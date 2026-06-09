@@ -1,6 +1,7 @@
 <script lang="ts">
 	interface Facet {
 		name: string;
+		displayName?: string;
 		count: number;
 	}
 
@@ -98,7 +99,7 @@
 								onclick={() => onRemoveFilter('type', type)}
 								disabled={isEditMode}
 							>
-								{type}
+								{facets.types.find(t => t.name === type)?.displayName ?? type}
 								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 								</svg>
@@ -175,7 +176,7 @@
 										onchange={() => onToggleFacet('type', type.name)}
 										disabled={isEditMode}
 									/>
-									<span class="flex-1 text-sm">{type.name}</span>
+									<span class="flex-1 text-sm">{type.displayName ?? type.name}</span>
 									<span class="text-xs text-base-content/50">({type.count})</span>
 								</label>
 							{/each}
