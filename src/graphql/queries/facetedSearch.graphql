@@ -10,6 +10,7 @@ query facetedSearch(
     $orderByExperience: _ExperienceOrderByInput
     $authorFilters: [String!]
     $typeFilters: [String!]
+    $topicFilters: [String!]
 ) {
     # Main content results - ArticlePage
     ArticlePage(
@@ -30,6 +31,8 @@ query facetedSearch(
             _fulltext: { match: $searchTerm, fuzzy: true, synonyms: ONE }
             # Author filter (optional - null value is ignored)
             Author: { in: $authorFilters }
+            # Topic filter (optional - null value is ignored)
+            Topic: { in: $topicFilters }
         }
         pinned: { phrase: $searchTerm }
         tracking: { phrase: $trackingPhrase, source: $trackingSource }
@@ -82,6 +85,16 @@ query facetedSearch(
                     name
                     count
                 }
+            }
+            # Topic facet
+            Topic(
+                filters: $topicFilters
+                orderType: COUNT
+                orderBy: DESC
+                limit: 20
+            ) {
+                name
+                count
             }
         }
     }
