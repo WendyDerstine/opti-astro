@@ -11,6 +11,7 @@ fragment ArticlePage on ArticlePage {
     Heading
     SubHeading
     Author
+    Topic
     Body {
         html
     }
