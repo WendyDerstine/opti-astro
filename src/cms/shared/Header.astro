@@ -6,7 +6,6 @@ import type { SiteSettingsByHostnameQuery, Locales } from '../../../__generated/
 import type { ContentPayload } from '../../graphql/shared/ContentPayload';
 import { localeToSdkLocale } from '../../lib/locale-helpers';
 import { getClassForLogo } from './siteSettingsHelper';
-import SearchPaletteV2 from './SearchPaletteV2.svelte';
 import ThemePicker from './ThemePicker.astro';
 import LocaleSelector from './LocaleSelector.astro';
 import HeaderDrawerMenuButton from './HeaderDrawerMenuButton.astro';
@@ -76,16 +75,20 @@ const headerItems = settings?.HeaderLinks as MenuItemType[] | undefined;
         {!isDrawerMode && <HeaderDesktopHorizontalNav headerItems={headerItems} />}
 
         <!-- Right Side Actions -->
-        <div class="navbar-end" x-data>
-            <!-- Search input -->
-            <div class="relative hidden lg:block">
+        <div class="navbar-end">
+            <!-- Desktop search form -->
+            <form
+                class="relative hidden lg:block"
+                action={getRelativeLocaleUrl(lang || 'en', '/search/')}
+                method="get"
+            >
                 <input
                     id="search-input"
                     type="text"
+                    name="q"
                     placeholder="Search... (⌘K / Ctrl+K)"
-                    class="input input-bordered input-sm w-44 pl-10 pr-4"
-                    readonly
-                    @click="$dispatch('open-command-palette')"
+                    class="input input-bordered input-sm w-44 pl-10 pr-4 focus:w-64 transition-all duration-200"
+                    autocomplete="off"
                 />
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +96,7 @@ const headerItems = settings?.HeaderLinks as MenuItemType[] | undefined;
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
                     stroke="currentColor"
-                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none"
                 >
                     <path
                         stroke-linecap="round"
@@ -101,11 +104,10 @@ const headerItems = settings?.HeaderLinks as MenuItemType[] | undefined;
                         d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
                     ></path>
                 </svg>
-            </div>
-            <!-- Search button -->
-            <button
-                id="search-button"
-                @click="$dispatch('open-command-palette')"
+            </form>
+            <!-- Mobile search link -->
+            <a
+                href={getRelativeLocaleUrl(lang || 'en', '/search/')}
                 class="btn btn-ghost btn-circle lg:hidden"
                 aria-label="Search"
             >
@@ -123,7 +125,7 @@ const headerItems = settings?.HeaderLinks as MenuItemType[] | undefined;
                         d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
                     ></path>
                 </svg>
-            </button>
+            </a>
             <!-- Locale selector -->
             <LocaleSelector contentPayload={contentPayload} />
             <!-- Theme switcher dropdown -->
@@ -138,16 +140,13 @@ const headerItems = settings?.HeaderLinks as MenuItemType[] | undefined;
 <!-- Drawer Navigation Component -->
 {isDrawerMode && <HeaderDrawerNavigation headerItems={headerItems} isDrawerRight={isDrawerRight} />}
 
-<!-- Search Palette Component -->
-<SearchPaletteV2 client:load currentLocale={lang} domain={Astro.url.origin} />
-
-<!-- Keyboard shortcut for search -->
+<!-- Keyboard shortcut: Cmd+K / Ctrl+K focuses the desktop search input -->
 <script is:inline>
     document.addEventListener('keydown', function(e) {
-        // Cmd+K (Mac) or Ctrl+K (Windows/Linux)
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
             e.preventDefault();
-            window.dispatchEvent(new CustomEvent('open-command-palette'));
+            var input = document.getElementById('search-input');
+            if (input) { input.focus(); input.select(); }
         }
     });
 </script>
