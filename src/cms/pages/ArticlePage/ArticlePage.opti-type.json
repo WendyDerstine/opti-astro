@@ -91,6 +91,27 @@
 			"allowedTypes": [],
 			"restrictedTypes": []
 		},
+		"Topic": {
+			"type": "string",
+			"format": "selectOne",
+			"displayName": "Topic",
+			"isLocalized": false,
+			"isRequired": false,
+			"group": "Content",
+			"sortOrder": 55,
+			"enum": [
+				{ "value": "news", "displayName": "News" },
+				{ "value": "insights", "displayName": "Insights" },
+				{ "value": "leadership", "displayName": "Leadership" },
+				{ "value": "stories", "displayName": "Stories" },
+				{ "value": "innovation", "displayName": "Innovation" },
+				{ "value": "culture", "displayName": "Culture" },
+				{ "value": "events", "displayName": "Events" },
+				{ "value": "resources", "displayName": "Resources" }
+			],
+			"allowedTypes": [],
+			"restrictedTypes": []
+		},
 		"Body": {
 			"type": "richText",
 			"displayName": "Body",
