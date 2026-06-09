@@ -21,7 +21,7 @@ export interface Props {
     contentPayload: ContentPayload;
 }
 const { key, data, displaySettings, contentPayload } = Astro.props as Props;
-const currentSite = data.IncludeAllSites ? 
+const currentSite = data.IncludeAllSites ?
     data.ArticleRoot?.url?.base ? data.ArticleRoot.url.base :
     null : Astro.url.origin;
 const articlesList = await getOptimizelySdk(contentPayload).getArticles({
@@ -33,6 +33,24 @@ const articlesList = await getOptimizelySdk(contentPayload).getArticles({
 });
 const glideId = randomBytes(5).toString('hex');
 const items = articlesList.ArticlePage?.items || null;
+
+// Build topic filter data from fetched articles
+const TOPIC_DISPLAY_NAMES: Record<string, string> = {
+    news: 'News', insights: 'Insights', leadership: 'Leadership',
+    stories: 'Stories', innovation: 'Innovation', culture: 'Culture',
+    events: 'Events', resources: 'Resources',
+};
+
+const topicValues = [...new Set(
+    (items ?? [])
+        .map(item => (item as any).Topic as string | undefined)
+        .filter((t): t is string => !!t)
+)];
+
+const uniqueTopics = topicValues.map(value => ({
+    value,
+    label: TOPIC_DISPLAY_NAMES[value] ?? value,
+}));
 
 // Get style settings from display settings
 const styleDictionary = getDictionaryFromDisplaySettings(displaySettings);
@@ -135,16 +153,53 @@ const figureClasses = {
 const componentClass = 'component-articlelist';
 ---
 
-<div data-epi-block-id={isCmsEdit && key || undefined} class={componentClass}>
+<div
+    data-epi-block-id={isCmsEdit && key || undefined}
+    class={componentClass}
+    x-data="{ activeTopic: '' }"
+>
     <div class="w-full" class:list={[containerWrapperClasses]}>
         <h1 class="w-full basis-full" class:list={[titleClasses]}>{data?.Title}</h1>
+
+        {uniqueTopics.length > 0 && (
+            <div class="flex flex-wrap gap-2 mt-4 mb-6">
+                <button
+                    class="badge badge-lg cursor-pointer transition-colors duration-150"
+                    :class="activeTopic === '' ? 'badge-primary' : 'badge-outline hover:badge-primary'"
+                    @click="activeTopic = ''"
+                >
+                    All
+                </button>
+                {uniqueTopics.map(topic => (
+                    <button
+                        class="badge badge-lg cursor-pointer transition-colors duration-150"
+                        :class={`activeTopic === '${topic.value}' ? 'badge-primary' : 'badge-outline hover:badge-primary'`}
+                        @click={`activeTopic = activeTopic === '${topic.value}' ? '' : '${topic.value}'`}
+                    >
+                        {topic.label}
+                    </button>
+                ))}
+            </div>
+        )}
+
         <div class="mt-4 mb-4" class:list={[gridContainerClasses]}>
             {
                 //@ts-ignore
                 items?.map((item: ArticlePageExcerptFragment, i) => {
                     const articleUrl = (item._metadata?.url?.base || '') + (item._metadata?.url?.hierarchical || '') || '#';
-                    return (                        
-                        <div class="card bg-base-100 shadow-sm flex" class:list={[cardDynamicClasses]}>
+                    const itemTopic = (item as any).Topic ?? '';
+                    return (
+                        <div
+                            class="card bg-base-100 shadow-sm flex"
+                            class:list={[cardDynamicClasses]}
+                            x-show={`activeTopic === '' || activeTopic === '${itemTopic}'`}
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition-opacity duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                        >
                             <figure class:list={[figureClasses]}>
                                 <AstroImage
                                     class="aspect-3/2 object-cover w-full h-full"
@@ -155,6 +210,13 @@ const componentClass = 'component-articlelist';
                                 />
                             </figure>
                             <div class="card-body">
+                                {itemTopic && (
+                                    <div class="mb-1">
+                                        <span class="badge badge-primary badge-sm uppercase tracking-wide text-xs">
+                                            {TOPIC_DISPLAY_NAMES[itemTopic] ?? itemTopic}
+                                        </span>
+                                    </div>
+                                )}
                                 <h2 class="card-title">{item.Heading}</h2>
                                 { item.Body?.html &&
                                     <div set:html={item.Body.html.replace(/<[^>]*>/g, '').split(' ').slice(0, 30).join(' ') + "..."} />
