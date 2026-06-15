@@ -14,13 +14,19 @@ export interface Props {
 const { key } = Astro.props as Props;
 const isCmsEdit = isEditContext(Astro.url);
 
-const zip = Astro.url.searchParams.get('zip')?.trim() ?? '';
+// Support both /location/86401/ slug and ?zip=86401 querystring
+const pathZip = Astro.url.pathname.match(/\/location\/(\d{5})\/?/)?.[1] ?? '';
+const zip = pathZip || Astro.url.searchParams.get('zip')?.trim() ?? '';
 const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
 ---
 
 <div class="component-location-finder max-w-screen-xl mx-auto px-4 py-10 2xl:px-0" data-epi-block-id={isCmsEdit && key || undefined}>
 
-    <form method="get" class="flex gap-3 mb-10 items-end">
+    <form
+        x-data="{}"
+        x-on:submit.prevent="window.location.href = '/location/' + $el.querySelector('#zip').value.trim() + '/'"
+        class="flex gap-3 mb-10 items-end"
+    >
         <div class="flex flex-col gap-1">
             <label for="zip" class="text-sm font-semibold">Enter ZIP Code</label>
             <input
@@ -37,7 +43,7 @@ const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
             />
         </div>
         <button type="submit" class="btn btn-primary">Find Locations</button>
-        {zip && <a href="?" class="btn btn-ghost">Clear</a>}
+        {zip && <a href="/location/" class="btn btn-ghost">Clear</a>}
     </form>
 
     {zip && results.length === 0 && (
