@@ -20,40 +20,16 @@ const zip = pathZip || (Astro.url.searchParams.get('zip')?.trim() ?? '');
 const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
 ---
 
-<div class="component-location-finder max-w-screen-xl mx-auto px-4 py-10 2xl:px-0" data-epi-block-id={isCmsEdit && key || undefined}>
-
-    <form
-        x-data="{}"
-        x-on:submit.prevent="window.location.href = '/location/' + $el.querySelector('#zip').value.trim() + '/'"
-        class="flex gap-3 mb-10 items-end"
-    >
-        <div class="flex flex-col gap-1">
-            <label for="zip" class="text-sm font-semibold">Enter ZIP Code</label>
-            <input
-                id="zip"
-                name="zip"
-                type="text"
-                inputmode="numeric"
-                pattern="[0-9]{5}"
-                maxlength="5"
-                placeholder="e.g. 86401"
-                value={zip}
-                class="input input-bordered w-48"
-                required
-            />
-        </div>
-        <button type="submit" class="btn btn-primary">Find Locations</button>
-        {zip && <a href="/location/" class="btn btn-ghost">Clear</a>}
-    </form>
+<div class="component-location-finder w-full px-4 py-10 2xl:px-0" data-epi-block-id={isCmsEdit && key || undefined}>
 
     {zip && results.length === 0 && (
-        <div class="alert alert-warning max-w-lg">
+        <div class="alert alert-warning max-w-lg mb-8">
             <span>No Builders FirstSource locations found for ZIP code <strong>{zip}</strong>.</span>
         </div>
     )}
 
     {results.length > 0 && (
-        <div>
+        <div class="mb-10">
             <p class="text-sm text-base-content/60 mb-6">{results.length} location{results.length !== 1 ? 's' : ''} found for ZIP <strong>{zip}</strong></p>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {results.map((loc) => (
@@ -108,6 +84,31 @@ const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
     )}
 
     {!zip && (
-        <p class="text-base-content/50 text-sm">Enter a ZIP code above to find nearby locations.</p>
+        <p class="text-base-content/50 text-sm mb-8">Enter a ZIP code below to find nearby locations.</p>
     )}
+
+    <form
+        x-data="{}"
+        x-on:submit.prevent="window.location.href = '/location/' + $el.querySelector('#zip').value.trim() + '/'"
+        class="flex gap-3 items-end"
+    >
+        <div class="flex flex-col gap-1">
+            <label for="zip" class="text-sm font-semibold">Enter ZIP Code</label>
+            <input
+                id="zip"
+                name="zip"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]{5}"
+                maxlength="5"
+                placeholder="e.g. 86401"
+                value={zip}
+                class="input input-bordered w-48"
+                required
+            />
+        </div>
+        <button type="submit" class="btn btn-primary">Find Locations</button>
+        {zip && <a href="/location/" class="btn btn-ghost">Clear</a>}
+    </form>
+
 </div>
