@@ -18,6 +18,7 @@ const isCmsEdit = isEditContext(Astro.url);
 const pathZip = Astro.url.pathname.match(/\/location\/(\d{5})\/?/)?.[1] ?? '';
 const zip = pathZip || (Astro.url.searchParams.get('zip')?.trim() ?? '');
 const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
+const mapAddress = results.length > 0 ? encodeURIComponent(results[0].address) : null;
 ---
 
 <div class="component-location-finder w-full px-4 py-10 2xl:px-0" data-epi-block-id={isCmsEdit && key || undefined}>
@@ -30,55 +31,76 @@ const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
 
     {results.length > 0 && (
         <div class="mb-10">
-            <p class="text-sm text-base-content/60 mb-6">{results.length} location{results.length !== 1 ? 's' : ''} found for ZIP <strong>{zip}</strong></p>
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {results.map((loc) => (
-                    <div class="card bg-base-100 border border-base-300 shadow-sm">
-                        <div class="card-body gap-3">
-                            <h2 class="card-title text-base font-semibold leading-snug">{loc.name}</h2>
+            <p class="text-sm text-base-content/60 mb-6">
+                {results.length} location{results.length !== 1 ? 's' : ''} found for ZIP <strong>{zip}</strong>
+            </p>
 
-                            <address class="not-italic text-sm text-base-content/80 leading-snug">
-                                {loc.address}
-                            </address>
+            <div class="flex flex-col lg:flex-row gap-6 w-full">
+                {/* Location cards */}
+                <div class={`flex flex-col gap-6 ${results.length === 1 ? 'lg:w-1/2' : 'w-full'}`}>
+                    {results.map((loc) => (
+                        <div class="card bg-base-100 border border-base-300 shadow-sm h-full">
+                            <div class="card-body gap-3">
+                                <h2 class="card-title text-lg font-semibold leading-snug">{loc.name}</h2>
 
-                            {loc.phone && (
-                                <a href={`tel:${loc.phone}`} class="text-sm font-medium text-primary hover:underline">
-                                    {loc.phone}
-                                </a>
-                            )}
+                                <address class="not-italic text-sm text-base-content/80 leading-snug">
+                                    {loc.address}
+                                </address>
 
-                            <div class="text-sm text-base-content/70">
-                                <span class="font-semibold text-base-content">Hours:</span><br />
-                                {loc.hours.split(';').map((h) => h.trim()).filter(Boolean).map((h) => (
-                                    <span class="block">{h}</span>
-                                ))}
+                                {loc.phone && (
+                                    <a href={`tel:${loc.phone}`} class="text-sm font-medium text-primary hover:underline">
+                                        {loc.phone}
+                                    </a>
+                                )}
+
+                                <div class="text-sm text-base-content/70">
+                                    <span class="font-semibold text-base-content">Hours:</span><br />
+                                    {loc.hours.split(';').map((h) => h.trim()).filter(Boolean).map((h) => (
+                                        <span class="block">{h}</span>
+                                    ))}
+                                </div>
+
+                                {loc.facilityTypes.length > 0 && (
+                                    <div class="flex flex-wrap gap-1 pt-1">
+                                        {loc.facilityTypes.map((ft) => (
+                                            <span class="badge badge-outline badge-sm">{ft}</span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {(loc.locationDetails.length > 0 || loc.pickUpAvailable) && (
+                                    <div class="flex flex-wrap gap-1 pt-1">
+                                        {loc.pickUpAvailable && (
+                                            <span class="badge badge-success badge-sm">Pick Up Available</span>
+                                        )}
+                                        {loc.locationDetails.map((d) => (
+                                            <span class="badge badge-info badge-sm">{d}</span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {loc.appointmentRequired && loc.appointmentRequired !== 'No' && (
+                                    <p class="text-xs text-base-content/60 italic">{loc.appointmentRequired}</p>
+                                )}
                             </div>
-
-                            {loc.facilityTypes.length > 0 && (
-                                <div class="flex flex-wrap gap-1 pt-1">
-                                    {loc.facilityTypes.map((ft) => (
-                                        <span class="badge badge-outline badge-sm">{ft}</span>
-                                    ))}
-                                </div>
-                            )}
-
-                            {(loc.locationDetails.length > 0 || loc.pickUpAvailable) && (
-                                <div class="flex flex-wrap gap-1 pt-1">
-                                    {loc.pickUpAvailable && (
-                                        <span class="badge badge-success badge-sm">Pick Up Available</span>
-                                    )}
-                                    {loc.locationDetails.map((d) => (
-                                        <span class="badge badge-info badge-sm">{d}</span>
-                                    ))}
-                                </div>
-                            )}
-
-                            {loc.appointmentRequired && loc.appointmentRequired !== 'No' && (
-                                <p class="text-xs text-base-content/60 italic">{loc.appointmentRequired}</p>
-                            )}
                         </div>
+                    ))}
+                </div>
+
+                {/* Map — only shown for single result */}
+                {results.length === 1 && mapAddress && (
+                    <div class="lg:w-1/2 min-h-96 lg:min-h-0">
+                        <iframe
+                            title="Location map"
+                            width="100%"
+                            height="100%"
+                            style="min-height: 400px; border: 0;"
+                            loading="lazy"
+                            allowfullscreen
+                            src={`https://maps.google.com/maps?q=${mapAddress}&output=embed`}
+                        />
                     </div>
-                ))}
+                )}
             </div>
         </div>
     )}
