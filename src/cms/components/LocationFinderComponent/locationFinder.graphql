@@ -1,0 +1,6 @@
+fragment LocationFinder on LocationFinder {
+    _metadata {
+        key
+        types
+    }
+}

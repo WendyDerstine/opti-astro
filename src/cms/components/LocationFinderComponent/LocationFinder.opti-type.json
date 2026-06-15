@@ -1,0 +1,16 @@
+{
+	"key": "LocationFinder",
+	"displayName": "Location Finder",
+	"description": "Displays Builders FirstSource locations matching a ZIP code from the URL querystring.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}
