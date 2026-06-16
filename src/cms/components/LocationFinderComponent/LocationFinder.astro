@@ -21,7 +21,7 @@ const results = zip ? bfsLocations.filter((loc) => loc.zip === zip) : [];
 const mapAddress = results.length > 0 ? encodeURIComponent(results[0].address) : null;
 ---
 
-<div class="component-location-finder w-full px-4 py-10 2xl:px-0" data-epi-block-id={isCmsEdit && key || undefined}>
+<div class="component-location-finder w-full px-4 py-10 max-w-screen-xl mx-auto 2xl:px-0" data-epi-block-id={isCmsEdit && key || undefined}>
 
     {zip && results.length === 0 && (
         <div class="alert alert-warning max-w-lg mb-8">
