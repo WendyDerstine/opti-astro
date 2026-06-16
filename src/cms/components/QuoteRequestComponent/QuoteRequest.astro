@@ -1,0 +1,222 @@
+---
+import type { DisplaySettingsFragment } from '../../../../__generated/sdk';
+import type { ContentPayload } from '../../../graphql/shared/ContentPayload';
+import { isEditContext } from '../../shared/utils.ts';
+
+export interface Props {
+    key: string;
+    data: any;
+    contentPayload: ContentPayload;
+    displaySettings: DisplaySettingsFragment[];
+}
+
+const { key } = Astro.props as Props;
+const isCmsEdit = isEditContext(Astro.url);
+
+const US_STATES = [
+    'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN',
+    'IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH',
+    'NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT',
+    'VT','VA','WA','WV','WI','WY'
+];
+---
+
+<div
+    class="component-quote-request w-full max-w-screen-xl mx-auto px-4 py-10 2xl:px-0"
+    data-epi-block-id={isCmsEdit && key || undefined}
+    x-data="{
+        billingDifferent: false,
+        submitted: false,
+        submit() { this.submitted = true; window.scrollTo({ top: this.$el.offsetTop - 80, behavior: 'smooth' }); }
+    }"
+>
+
+    <template x-if="submitted">
+        <div class="alert alert-success text-base">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <p class="font-semibold">Thank you! Your quote request has been submitted.</p>
+                <p class="text-sm">A Builders FirstSource representative will be in touch shortly.</p>
+            </div>
+        </div>
+    </template>
+
+    <form x-show="!submitted" x-on:submit.prevent="submit()" novalidate>
+
+        <!-- Contact Information -->
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-base-300">Contact Information</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="form-control">
+                    <label class="label" for="firstName"><span class="label-text font-medium">First Name <span class="text-error">*</span></span></label>
+                    <input id="firstName" name="firstName" type="text" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="lastName"><span class="label-text font-medium">Last Name <span class="text-error">*</span></span></label>
+                    <input id="lastName" name="lastName" type="text" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="phone"><span class="label-text font-medium">Phone Number <span class="text-error">*</span></span></label>
+                    <input id="phone" name="phone" type="tel" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="email"><span class="label-text font-medium">Email <span class="text-error">*</span></span></label>
+                    <input id="email" name="email" type="email" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control sm:col-span-2">
+                    <label class="label" for="company"><span class="label-text font-medium">Company <span class="text-error">*</span></span></label>
+                    <input id="company" name="company" type="text" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="customerType"><span class="label-text font-medium">What best describes you? <span class="text-error">*</span></span></label>
+                    <select id="customerType" name="customerType" class="select select-bordered w-full" required>
+                        <option value="" disabled selected>Select one</option>
+                        <option>Production Home Builder</option>
+                        <option>Custom Home Builder</option>
+                        <option>Repair &amp; Remodel</option>
+                        <option>Commercial Construction</option>
+                        <option>Multi-Family Construction</option>
+                        <option>Homeowner</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label" for="role"><span class="label-text font-medium">Role <span class="text-error">*</span></span></label>
+                    <select id="role" name="role" class="select select-bordered w-full" required>
+                        <option value="" disabled selected>Select one</option>
+                        <option>Homeowner</option>
+                        <option>Owner/Partner/Executive</option>
+                        <option>Architect/Designer/Engineer</option>
+                        <option>Construction Manager/Supervisor</option>
+                        <option>Project Manager</option>
+                        <option>Installer/Plumber/Electrician</option>
+                        <option>Purchasing</option>
+                        <option>Accounting</option>
+                        <option>Sales/Marketing</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Site Address -->
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-base-300">Job Site Address</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="form-control sm:col-span-2">
+                    <label class="label" for="jobStreet"><span class="label-text font-medium">Street <span class="text-error">*</span></span></label>
+                    <input id="jobStreet" name="jobStreet" type="text" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="jobCity"><span class="label-text font-medium">City <span class="text-error">*</span></span></label>
+                    <input id="jobCity" name="jobCity" type="text" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="jobState"><span class="label-text font-medium">State <span class="text-error">*</span></span></label>
+                    <select id="jobState" name="jobState" class="select select-bordered w-full" required>
+                        <option value="" disabled selected>Select state</option>
+                        {US_STATES.map(s => <option>{s}</option>)}
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label" for="jobZip"><span class="label-text font-medium">ZIP Code <span class="text-error">*</span></span></label>
+                    <input id="jobZip" name="jobZip" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control sm:col-span-2">
+                    <span class="label-text font-medium mb-2 block">Is billing address different? <span class="text-error">*</span></span>
+                    <div class="flex gap-6">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="billingDifferent" value="no" class="radio" checked x-on:change="billingDifferent = false" />
+                            <span class="label-text">No</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="billingDifferent" value="yes" class="radio" x-on:change="billingDifferent = true" />
+                            <span class="label-text">Yes</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Address (conditional) -->
+        <div class="mb-10" x-show="billingDifferent" x-transition>
+            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-base-300">Billing Address</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="form-control sm:col-span-2">
+                    <label class="label" for="billStreet"><span class="label-text font-medium">Street <span class="text-error">*</span></span></label>
+                    <input id="billStreet" name="billStreet" type="text" class="input input-bordered w-full" />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="billCity"><span class="label-text font-medium">City <span class="text-error">*</span></span></label>
+                    <input id="billCity" name="billCity" type="text" class="input input-bordered w-full" />
+                </div>
+                <div class="form-control">
+                    <label class="label" for="billState"><span class="label-text font-medium">State <span class="text-error">*</span></span></label>
+                    <select id="billState" name="billState" class="select select-bordered w-full">
+                        <option value="" disabled selected>Select state</option>
+                        {US_STATES.map(s => <option>{s}</option>)}
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label" for="billZip"><span class="label-text font-medium">ZIP Code <span class="text-error">*</span></span></label>
+                    <input id="billZip" name="billZip" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" class="input input-bordered w-full" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Details -->
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-base-300">Project Details</h2>
+            <div class="grid gap-4">
+                <div class="form-control">
+                    <label class="label" for="projectType"><span class="label-text font-medium">Type of Project <span class="text-error">*</span></span></label>
+                    <select id="projectType" name="projectType" class="select select-bordered w-full" required>
+                        <option value="" disabled selected>Select one</option>
+                        <option>Advanced Manufactured Components</option>
+                        <option>Cabinets &amp; Countertops</option>
+                        <option>Decking &amp; Landscaping</option>
+                        <option>Doors</option>
+                        <option>Drywall &amp; Accessories</option>
+                        <option>Hardware &amp; Home Center Supplies</option>
+                        <option>Insulation &amp; Weatherproofing</option>
+                        <option>Lumber</option>
+                        <option>Moulding &amp; Millwork</option>
+                        <option>Plywood &amp; Sheathings</option>
+                        <option>Roofing</option>
+                        <option>Siding</option>
+                        <option>Stairs &amp; Stair Parts</option>
+                        <option>Tools</option>
+                        <option>Windows</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label" for="projectDetails"><span class="label-text font-medium">Project Details / Material List <span class="text-error">*</span></span></label>
+                    <textarea id="projectDetails" name="projectDetails" rows="6" class="textarea textarea-bordered w-full" required></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-base-300">Attachments</h2>
+            <div class="form-control">
+                <label class="label" for="attachments"><span class="label-text font-medium">Upload Files <span class="text-base-content/50 font-normal">(optional — Word, Excel, CAD, PDF, images, zip — max 30MB)</span></span></label>
+                <input id="attachments" name="attachments" type="file" multiple accept=".doc,.docx,.xls,.xlsx,.dwg,.dxf,.pdf,.jpg,.jpeg,.png,.gif,.zip" class="file-input file-input-bordered w-full" />
+            </div>
+        </div>
+
+        <!-- Email Preferences -->
+        <div class="mb-10">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" name="emailOptIn" class="checkbox mt-0.5" />
+                <span class="label-text">I agree to receive email communications from Builders FirstSource about products, services, and promotions.</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg">Submit Quote Request</button>
+
+    </form>
+</div>

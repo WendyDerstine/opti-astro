@@ -11,6 +11,7 @@ import Collapse from './CollapseComponent/Collapse.astro';
 import Divider from './DividerComponent/Divider.astro';
 import FacetedSearch from './FacetedSearchComponent/FacetedSearch.astro';
 import LocationFinder from './LocationFinderComponent/LocationFinder.astro';
+import QuoteRequest from './QuoteRequestComponent/QuoteRequest.astro';
 import Grid from './GridComponent/Grid.astro';
 import Hero from './HeroComponent/Hero.astro';
 import Iframe from './IframeComponent/Iframe.astro';
@@ -244,6 +245,17 @@ const componentType = component._metadata.types[0];
 {
     componentType === 'LocationFinder' && (
         <LocationFinder
+            key={data?.key}
+            contentPayload={contentPayload}
+            data={component}
+            displaySettings={displaySettings}
+        />
+    )
+}
+
+{
+    componentType === 'QuoteRequest' && (
+        <QuoteRequest
             key={data?.key}
             contentPayload={contentPayload}
             data={component}

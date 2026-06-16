@@ -1,0 +1,16 @@
+{
+	"key": "QuoteRequest",
+	"displayName": "Quote Request Form",
+	"description": "Request a quote form matching the Builders FirstSource quote request flow.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}
