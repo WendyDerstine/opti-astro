@@ -212,14 +212,10 @@ const componentClass = 'component-articlelist';
                                     />
                                 ) : (
                                     <div
-                                        class="aspect-3/2 w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center"
+                                        class="aspect-3/2 w-full h-full bg-primary"
                                         role="img"
                                         aria-label={`Promo image for ${item.Heading}`}
                                     >
-                                        <span class="text-5xl font-bold text-primary-content/40 select-none">
-                                            {(item.Heading || '?').trim().charAt(0).toUpperCase()}
-                                        </span>
-                                    </div>
                                 )}
                             </figure>
                             <div class="card-body">
