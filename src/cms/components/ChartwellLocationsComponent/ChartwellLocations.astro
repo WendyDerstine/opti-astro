@@ -20,6 +20,9 @@ const pathParts = Astro.url.pathname.replace(/\/$/, '').split('/').filter(Boolea
 const citySlug = pathParts[pathParts.length - 1] ?? '';
 const city = citySlug.replace(/-/g, ' ');
 
+// Title-case the city name for display
+const cityDisplay = city.replace(/\b\w/g, (c) => c.toUpperCase());
+
 interface Location {
     id: number;
     name: string;
@@ -52,9 +55,32 @@ const careTypeColors: Record<string, string> = {
 ---
 
 <div
-    class="component-chartwell-locations w-full max-w-screen-xl mx-auto px-4 py-10 2xl:px-0"
+    class="component-chartwell-locations w-full"
     data-epi-block-id={isCmsEdit && key || undefined}
 >
+
+    {/* Hero banner */}
+    <div class="w-full bg-[#1a3a2a] text-white py-16 px-4">
+        <div class="max-w-screen-xl mx-auto 2xl:px-0">
+            <nav class="text-sm text-white/60 mb-4">
+                <a href="/find-a-residence/" class="hover:text-white">Find a Residence</a>
+                <span class="mx-2">/</span>
+                <a href="/find-a-residence/ontario/" class="hover:text-white">Ontario</a>
+                {city && <><span class="mx-2">/</span><span class="text-white/90">{cityDisplay}</span></>}
+            </nav>
+            <h1 class="text-4xl md:text-5xl font-bold mb-3">
+                {city ? `Retirement Homes in ${cityDisplay}` : 'Find a Chartwell Residence'}
+            </h1>
+            <p class="text-lg text-white/80 max-w-2xl">
+                {city
+                    ? `Discover Chartwell's retirement living options in ${cityDisplay}, Ontario — from independent living to memory care.`
+                    : 'Explore Chartwell retirement residences across Ontario.'}
+            </p>
+        </div>
+    </div>
+
+    {/* Results */}
+    <div class="max-w-screen-xl mx-auto px-4 py-10 2xl:px-0">
 
     {error && (
         <div class="alert alert-error max-w-lg">
@@ -115,4 +141,5 @@ const careTypeColors: Record<string, string> = {
         <p class="text-base-content/50 text-sm">No locations to display.</p>
     )}
 
+    </div>{/* end results */}
 </div>
