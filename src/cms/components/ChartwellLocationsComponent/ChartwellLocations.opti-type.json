@@ -1,0 +1,16 @@
+{
+	"key": "ChartwellLocations",
+	"displayName": "Chartwell Locations",
+	"description": "Displays Chartwell retirement residences fetched from the WenOptiAPI. Filters by city based on URL path.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}

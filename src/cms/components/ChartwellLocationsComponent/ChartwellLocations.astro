@@ -1,0 +1,118 @@
+---
+import type { DisplaySettingsFragment } from '../../../../__generated/sdk';
+import type { ContentPayload } from '../../../graphql/shared/ContentPayload';
+import { isEditContext } from '../../shared/utils.ts';
+
+export interface Props {
+    key: string;
+    data: any;
+    contentPayload: ContentPayload;
+    displaySettings: DisplaySettingsFragment[];
+}
+
+const { key } = Astro.props as Props;
+const isCmsEdit = isEditContext(Astro.url);
+
+const API_BASE = 'https://wenoptiapi.netlify.app/.netlify/functions/chartwell-locations';
+
+// Read city from URL: /find-a-residence/ontario/toronto/ → "toronto"
+const pathParts = Astro.url.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+const citySlug = pathParts[pathParts.length - 1] ?? '';
+const city = citySlug.replace(/-/g, ' ');
+
+interface Location {
+    id: number;
+    name: string;
+    city: string;
+    address: string;
+    phone: string;
+    careTypes: string[];
+}
+
+let locations: Location[] = [];
+let error = false;
+
+try {
+    const url = city ? `${API_BASE}?city=${encodeURIComponent(city)}` : API_BASE;
+    const res = await fetch(url);
+    const json = await res.json();
+    locations = json.locations ?? [];
+} catch {
+    error = true;
+}
+
+const careTypeColors: Record<string, string> = {
+    'Independent Living': 'badge-success',
+    'Assisted Living':    'badge-info',
+    'Memory Care':        'badge-warning',
+    'Long Term Care':     'badge-error',
+    'Seniors Apartments': 'badge-neutral',
+    'Townhouse':          'badge-neutral',
+};
+---
+
+<div
+    class="component-chartwell-locations w-full max-w-screen-xl mx-auto px-4 py-10 2xl:px-0"
+    data-epi-block-id={isCmsEdit && key || undefined}
+>
+
+    {error && (
+        <div class="alert alert-error max-w-lg">
+            <span>Unable to load locations. Please try again later.</span>
+        </div>
+    )}
+
+    {!error && locations.length === 0 && city && (
+        <div class="alert alert-warning max-w-lg mb-8">
+            <span>No Chartwell residences found in <strong>{city}</strong>.</span>
+        </div>
+    )}
+
+    {!error && locations.length > 0 && (
+        <div>
+            <p class="text-sm text-base-content/60 mb-6">
+                {locations.length} residence{locations.length !== 1 ? 's' : ''} found
+                {city && <> in <strong class="capitalize">{city}</strong></>}
+            </p>
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {locations.map((loc) => (
+                    <div class="card bg-base-100 border border-base-300 shadow-sm">
+                        <div class="card-body gap-3">
+                            <h2 class="card-title text-base font-semibold leading-snug">{loc.name}</h2>
+
+                            <address class="not-italic text-sm text-base-content/80 leading-snug">
+                                {loc.address}
+                            </address>
+
+                            <a href={`tel:${loc.phone}`} class="text-sm font-medium text-primary hover:underline">
+                                {loc.phone}
+                            </a>
+
+                            <div class="flex flex-wrap gap-1 pt-1">
+                                {loc.careTypes.map((ct) => (
+                                    <span class:list={['badge badge-sm', careTypeColors[ct] ?? 'badge-neutral']}>
+                                        {ct}
+                                    </span>
+                                ))}
+                            </div>
+
+                            <a
+                                href={`https://www.chartwell.com/find-a-residence/ontario/${loc.city.toLowerCase().replace(/\s+/g, '-')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-sm btn-outline mt-2"
+                            >
+                                Book a Tour
+                            </a>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )}
+
+    {!error && !city && locations.length === 0 && (
+        <p class="text-base-content/50 text-sm">No locations to display.</p>
+    )}
+
+</div>
