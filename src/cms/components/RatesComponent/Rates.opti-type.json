@@ -1,0 +1,16 @@
+{
+	"key": "Rates",
+	"displayName": "Rates Table",
+	"description": "Displays TDECU product rates organized by category with tab navigation.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}

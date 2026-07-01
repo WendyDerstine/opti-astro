@@ -1,0 +1,87 @@
+---
+import type { DisplaySettingsFragment } from '../../../../__generated/sdk';
+import type { ContentPayload } from '../../../graphql/shared/ContentPayload';
+import { isEditContext } from '../../shared/utils.ts';
+import { rateCategories } from '../../../data/tdecu-rates.ts';
+
+export interface Props {
+    key: string;
+    data: any;
+    contentPayload: ContentPayload;
+    displaySettings: DisplaySettingsFragment[];
+}
+
+const { key } = Astro.props as Props;
+const isCmsEdit = isEditContext(Astro.url);
+
+const activeTab = Astro.url.searchParams.get('tab') ?? rateCategories[0].key;
+const activeCategory = rateCategories.find(c => c.key === activeTab) ?? rateCategories[0];
+---
+
+<div
+    class="component-rates w-full max-w-screen-xl mx-auto px-4 py-10 2xl:px-0"
+    data-epi-block-id={isCmsEdit && key || undefined}
+>
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-base-content mb-2">Current Rates</h2>
+        <p class="text-base-content/60 text-sm">Rates effective as of July 2026. Subject to change without notice.</p>
+    </div>
+
+    <!-- Tab navigation -->
+    <div class="flex flex-wrap gap-2 mb-8 border-b border-base-300 pb-0">
+        {rateCategories.map(cat => (
+            <a
+                href={`?tab=${cat.key}`}
+                class:list={[
+                    'px-4 py-2 text-sm font-medium rounded-t border-b-2 -mb-px transition-colors',
+                    cat.key === activeCategory.key
+                        ? 'border-primary text-primary bg-base-100'
+                        : 'border-transparent text-base-content/60 hover:text-base-content hover:border-base-300'
+                ]}
+            >
+                {cat.label}
+            </a>
+        ))}
+    </div>
+
+    <!-- Rate table -->
+    <div class="overflow-x-auto">
+        <table class="table w-full">
+            <thead>
+                <tr class="border-b border-base-300">
+                    <th class="text-left font-semibold text-base-content/70 text-sm uppercase tracking-wide py-3 pl-0">Product</th>
+                    <th class="text-right font-semibold text-base-content/70 text-sm uppercase tracking-wide py-3">Rate</th>
+                    <th class="text-right font-semibold text-base-content/70 text-sm uppercase tracking-wide py-3">Type</th>
+                    {activeCategory.rates.some(r => r.term) && (
+                        <th class="text-right font-semibold text-base-content/70 text-sm uppercase tracking-wide py-3">Term</th>
+                    )}
+                    <th class="text-left font-semibold text-base-content/70 text-sm uppercase tracking-wide py-3">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {activeCategory.rates.map((rate, i) => (
+                    <tr class:list={['border-b border-base-200', i % 2 === 0 ? 'bg-base-100' : 'bg-base-50']}>
+                        <td class="py-4 pl-0 font-medium text-base-content">{rate.product}</td>
+                        <td class="py-4 text-right text-xl font-bold text-primary">{rate.rate}</td>
+                        <td class="py-4 text-right">
+                            <span class:list={[
+                                'badge badge-sm font-semibold',
+                                rate.rateType === 'APY' ? 'badge-success' : 'badge-info'
+                            ]}>
+                                {rate.rateType}
+                            </span>
+                        </td>
+                        {activeCategory.rates.some(r => r.term) && (
+                            <td class="py-4 text-right text-sm text-base-content/70">{rate.term ?? '—'}</td>
+                        )}
+                        <td class="py-4 text-sm text-base-content/60">{rate.notes ?? ''}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+
+    <p class="mt-6 text-xs text-base-content/40">
+        APY = Annual Percentage Yield. APR = Annual Percentage Rate. Rates are subject to change. Membership eligibility required.
+    </p>
+</div>
