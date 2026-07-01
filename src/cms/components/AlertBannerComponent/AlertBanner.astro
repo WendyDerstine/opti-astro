@@ -23,12 +23,6 @@ const iconMap = {
     success: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
 };
 
-const alertClass = {
-    error: 'alert-error',
-    warning: 'alert-warning',
-    info: 'alert-info',
-    success: 'alert-success',
-}[alert.type];
 ---
 
 <div
@@ -40,7 +34,7 @@ const alertClass = {
     x-transition:leave-start="opacity-100 max-h-40"
     x-transition:leave-end="opacity-0 max-h-0"
 >
-    <div class:list={['alert rounded-none px-4 py-3', alertClass]}>
+    <div class="alert rounded-none px-4 py-3 bg-[#c8102e] text-white border-0">
         <div class="max-w-screen-xl mx-auto w-full flex items-start gap-3 2xl:px-0">
             <span set:html={iconMap[alert.type]} />
             <div class="flex-1 min-w-0">
