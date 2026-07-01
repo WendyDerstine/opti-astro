@@ -1,0 +1,16 @@
+{
+	"key": "AlertBanner",
+	"displayName": "Alert Banner",
+	"description": "Displays a randomly selected alert message with a dismiss button. Message changes on each page load.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}

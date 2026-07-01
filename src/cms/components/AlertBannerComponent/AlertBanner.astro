@@ -1,0 +1,62 @@
+---
+import type { DisplaySettingsFragment } from '../../../../__generated/sdk';
+import type { ContentPayload } from '../../../graphql/shared/ContentPayload';
+import { isEditContext } from '../../shared/utils.ts';
+import { alerts } from '../../../data/tdecu-alerts.ts';
+
+export interface Props {
+    key: string;
+    data: any;
+    contentPayload: ContentPayload;
+    displaySettings: DisplaySettingsFragment[];
+}
+
+const { key } = Astro.props as Props;
+const isCmsEdit = isEditContext(Astro.url);
+
+const alert = alerts[Math.floor(Math.random() * alerts.length)];
+
+const iconMap = {
+    error: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
+    warning: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
+    info: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>`,
+    success: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+};
+
+const alertClass = {
+    error: 'alert-error',
+    warning: 'alert-warning',
+    info: 'alert-info',
+    success: 'alert-success',
+}[alert.type];
+---
+
+<div
+    class="component-alert-banner w-full"
+    data-epi-block-id={isCmsEdit && key || undefined}
+    x-data="{ visible: true }"
+    x-show="visible"
+    x-transition:leave="transition duration-300"
+    x-transition:leave-start="opacity-100 max-h-40"
+    x-transition:leave-end="opacity-0 max-h-0"
+>
+    <div class:list={['alert rounded-none px-4 py-3', alertClass]}>
+        <div class="max-w-screen-xl mx-auto w-full flex items-start gap-3 2xl:px-0">
+            <span set:html={iconMap[alert.type]} />
+            <div class="flex-1 min-w-0">
+                <span class="font-semibold">{alert.title}:</span>
+                {' '}{alert.message}
+            </div>
+            <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-circle shrink-0 opacity-70 hover:opacity-100"
+                x-on:click="visible = false"
+                aria-label="Dismiss alert"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

@@ -9,6 +9,7 @@ import Card from './CardComponent/Card.astro';
 import Carousel from './CarouselComponent/Carousel.astro';
 import Collapse from './CollapseComponent/Collapse.astro';
 import Divider from './DividerComponent/Divider.astro';
+import AlertBanner from './AlertBannerComponent/AlertBanner.astro';
 import FacetedSearch from './FacetedSearchComponent/FacetedSearch.astro';
 import Rates from './RatesComponent/Rates.astro';
 import Grid from './GridComponent/Grid.astro';
@@ -238,6 +239,17 @@ const componentType = component._metadata.types[0];
 {
     componentType === 'OptiFormsContainerData' && (
         <OptiForm contentPayload={contentPayload} grid={component} />
+    )
+}
+
+{
+    componentType === 'AlertBanner' && (
+        <AlertBanner
+            key={data?.key}
+            contentPayload={contentPayload}
+            data={component}
+            displaySettings={displaySettings}
+        />
     )
 }
 
