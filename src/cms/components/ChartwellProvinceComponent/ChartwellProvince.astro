@@ -1,0 +1,180 @@
+---
+import type { DisplaySettingsFragment } from '../../../../__generated/sdk';
+import type { ContentPayload } from '../../../graphql/shared/ContentPayload';
+import { isEditContext } from '../../shared/utils.ts';
+
+export interface Props {
+    key: string;
+    data: any;
+    contentPayload: ContentPayload;
+    displaySettings: DisplaySettingsFragment[];
+}
+
+const { key } = Astro.props as Props;
+const isCmsEdit = isEditContext(Astro.url);
+
+const API_BASE = 'https://wenoptiapi.netlify.app/.netlify/functions/chartwell-locations';
+
+interface Location {
+    id: number;
+    name: string;
+    city: string;
+    slug: string;
+    careTypes: string[];
+}
+
+let locations: Location[] = [];
+let error = false;
+
+try {
+    const res = await fetch(API_BASE);
+    const json = await res.json();
+    locations = json.locations ?? [];
+} catch {
+    error = true;
+}
+
+// Group by city, sorted alphabetically
+const byCity = locations.reduce<Record<string, Location[]>>((acc, loc) => {
+    if (!acc[loc.city]) acc[loc.city] = [];
+    acc[loc.city].push(loc);
+    return acc;
+}, {});
+const sortedCities = Object.keys(byCity).sort();
+
+// All unique care types across all locations
+const allCareTypes = [...new Set(locations.flatMap(l => l.careTypes))].sort();
+---
+
+<div
+    class="component-chartwell-province w-full"
+    data-epi-block-id={isCmsEdit && key || undefined}
+    x-data={`{
+        search: '',
+        activeCare: '',
+        get filteredCities() {
+            const s = this.search.toLowerCase().trim();
+            const c = this.activeCare;
+            return ${JSON.stringify(sortedCities)}.filter(city => {
+                const locs = this.locsByCity[city] || [];
+                const matchedLocs = locs.filter(l => {
+                    const careMatch = !c || l.careTypes.includes(c);
+                    const searchMatch = !s || l.name.toLowerCase().includes(s) || city.toLowerCase().includes(s);
+                    return careMatch && searchMatch;
+                });
+                return matchedLocs.length > 0;
+            });
+        },
+        residences(city) {
+            const s = this.search.toLowerCase().trim();
+            const c = this.activeCare;
+            return (this.locsByCity[city] || []).filter(l => {
+                const careMatch = !c || l.careTypes.includes(c);
+                const searchMatch = !s || l.name.toLowerCase().includes(s) || city.toLowerCase().includes(s);
+                return careMatch && searchMatch;
+            });
+        },
+        locsByCity: ${JSON.stringify(byCity)}
+    }`}
+>
+
+    {/* Header */}
+    <div class="max-w-screen-xl mx-auto px-4 pt-10 pb-6 2xl:px-0 text-center">
+        <nav class="text-sm text-base-content/50 mb-4 flex items-center justify-center gap-1">
+            <a href="/find-a-residence/" class="hover:text-[#6b2d6b]">Find a Residence</a>
+            <span>/</span>
+            <span class="text-base-content/80">Ontario</span>
+        </nav>
+        <h1 class="text-4xl md:text-5xl font-light text-[#6b2d6b] mb-4">Retirement Homes in Ontario</h1>
+        <p class="text-base text-base-content/70 max-w-2xl mx-auto">
+            Live your retirement years in a welcoming community in the heart of the city you love.
+            Our conveniently located retirement homes across Ontario keep you close to friends, family, and the familiar comforts of home.
+        </p>
+    </div>
+
+    {/* Search bar */}
+    <div class="w-full bg-[#6b2d6b] py-5 px-6 mb-4">
+        <div class="max-w-screen-xl mx-auto 2xl:px-0">
+            <input
+                type="text"
+                x-model="search"
+                placeholder="Enter a City or Residence"
+                class="w-full max-w-xl mx-auto block px-5 py-3 rounded text-base border-0 focus:outline-none focus:ring-2 focus:ring-white/50"
+            />
+        </div>
+    </div>
+
+    {/* Care type filter pills */}
+    <div class="max-w-screen-xl mx-auto px-4 py-4 2xl:px-0 flex flex-wrap items-center gap-2">
+        <span class="text-sm text-base-content/60 mr-1">Filter by:</span>
+        <button
+            x-on:click="activeCare = ''"
+            class="btn btn-sm"
+            x-bind:class="activeCare === '' ? 'bg-[#6b2d6b] text-white border-0' : 'btn-outline'"
+        >All</button>
+        {allCareTypes.map((ct) => (
+            <button
+                x-on:click={`activeCare = activeCare === '${ct}' ? '' : '${ct}'`}
+                class="btn btn-sm"
+                x-bind:class={`activeCare === '${ct}' ? 'bg-[#6b2d6b] text-white border-0' : 'btn-outline'`}
+            >
+                {ct}
+            </button>
+        ))}
+    </div>
+
+    {/* City / residence list */}
+    <div class="max-w-screen-xl mx-auto px-4 py-6 2xl:px-0">
+
+        {error && (
+            <div class="alert alert-error max-w-lg">
+                <span>Unable to load locations. Please try again later.</span>
+            </div>
+        )}
+
+        {!error && (
+            <>
+                <p class="text-sm text-base-content/50 mb-6">
+                    <span x-text="filteredCities.length"></span> {sortedCities.length === 1 ? 'city' : 'cities'} in Ontario
+                </p>
+
+                <div class="columns-1 sm:columns-2 gap-10">
+                    {sortedCities.map((city) => (
+                        <div
+                            class="break-inside-avoid mb-8"
+                            x-show={`filteredCities.includes('${city}')`}
+                        >
+                            <h2 class="text-base font-bold text-[#6b2d6b] mb-2">
+                                <a
+                                    href={`/find-a-residence/ontario/${city.toLowerCase().replace(/\s+/g, '-')}/`}
+                                    class="hover:underline"
+                                >
+                                    {city}
+                                </a>
+                            </h2>
+                            <ul class="space-y-1">
+                                {byCity[city].map((loc) => (
+                                    <li
+                                        x-show={`residences('${city}').some(l => l.id === ${loc.id})`}
+                                    >
+                                        <a
+                                            href={`/find-a-residence/ontario/${city.toLowerCase().replace(/\s+/g, '-')}/${loc.slug}/`}
+                                            class="text-sm text-base-content/80 hover:text-[#6b2d6b] hover:underline"
+                                        >
+                                            {loc.name}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+
+                <div x-show="filteredCities.length === 0" class="py-8 text-base-content/50 text-sm">
+                    No residences match your search.
+                </div>
+            </>
+        )}
+    </div>
+
+</div>

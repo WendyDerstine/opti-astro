@@ -4,6 +4,7 @@ import ArticlePageCard from '../pages/ArticlePage/ArticlePageCard.astro';
 import ChartwellLocations from './ChartwellLocationsComponent/ChartwellLocations.astro';
 import ChartwellLocationsSearch from './ChartwellLocationsSearchComponent/ChartwellLocationsSearch.astro';
 import ChartwellResidence from './ChartwellResidenceComponent/ChartwellResidence.astro';
+import ChartwellProvince from './ChartwellProvinceComponent/ChartwellProvince.astro';
 import ArticleList from './ArticleListComponent/ArticleList.astro';
 import Button from './ButtonComponent/Button.astro';
 import DamAssetList from './DamAssetListComponent/DamAssetList.astro';
@@ -268,6 +269,17 @@ const componentType = component._metadata.types[0];
 {
     componentType === 'ChartwellResidence' && (
         <ChartwellResidence
+            key={data?.key}
+            contentPayload={contentPayload}
+            data={component}
+            displaySettings={displaySettings}
+        />
+    )
+}
+
+{
+    componentType === 'ChartwellProvince' && (
+        <ChartwellProvince
             key={data?.key}
             contentPayload={contentPayload}
             data={component}

@@ -1,0 +1,16 @@
+{
+	"key": "ChartwellProvince",
+	"displayName": "Chartwell Province Listing",
+	"description": "Province-level index of all Chartwell retirement residences, grouped by city. Includes search and care type filtering. Fetches all locations from WenOptiAPI.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}
