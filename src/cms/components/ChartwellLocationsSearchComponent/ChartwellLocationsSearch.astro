@@ -112,12 +112,10 @@ const careTypeColors: Record<string, string> = {
                             </div>
 
                             <a
-                                href={`https://www.chartwell.com/find-a-residence/ontario/${loc.city.toLowerCase().replace(/\s+/g, '-')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href={`/find-a-residence/ontario/${loc.city.toLowerCase().replace(/\s+/g, '-')}/${loc.slug}/`}
                                 class="btn btn-sm btn-outline mt-2"
                             >
-                                Book a Tour
+                                View Residence
                             </a>
                         </div>
                     </div>

@@ -1,0 +1,16 @@
+{
+	"key": "ChartwellResidence",
+	"displayName": "Chartwell Residence",
+	"description": "Individual Chartwell retirement residence landing page. Reads the residence slug from the URL path and fetches data from WenOptiAPI.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}
