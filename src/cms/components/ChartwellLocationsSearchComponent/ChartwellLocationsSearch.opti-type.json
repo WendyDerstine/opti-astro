@@ -1,0 +1,16 @@
+{
+	"key": "ChartwellLocationsSearch",
+	"displayName": "Chartwell Locations Search",
+	"description": "Displays Chartwell retirement residences with a city search form. Filters by ?city= querystring parameter.",
+	"baseType": "_component",
+	"isContract": false,
+	"sortOrder": 0,
+	"mayContainTypes": [],
+	"mediaFileExtensions": [],
+	"compositionBehaviors": [
+		"sectionEnabled",
+		"elementEnabled"
+	],
+	"contracts": [],
+	"properties": {}
+}
